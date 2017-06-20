@@ -2,6 +2,7 @@ package com.pack.spark
 
 
 import org.apache.spark.SparkConf
+import java.util.Date
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 
@@ -68,12 +69,14 @@ object WordCounter {
     result
   }
   
-  def evalueETF( input: String , output: String, capital: Double, sc: SparkContext, name: String) =
+  def evalueETF( input: String , output: String, capital: Double, sc: SparkContext, name: String, 
+      beginDate: Date, endDate: Date) =
   {
+    
+    var monthsCounter = 0;
+    var yearVariation = 0.0;
     //Read some example file to a test RDD
     val test = sc.textFile( input )
-    
-    println("WORK ON: " + name);
     
     var previousValue = parseDouble("0")
     var previousCapital = capital
@@ -91,43 +94,64 @@ object WordCounter {
         //variable.foreach( println )
         
         val date = variable.array(0)
-        val open = parseDouble( variable.array(1) )
-        //println( "date: " + date )
-        //println( "new value: " + open + ";  old value: " + previousValue )
-        var variation = percentDifference( previousValue , open )
-        if(variation.isNaN() || variation.isInfinite)
+        val df = dateFormatter(date)
+    
+        if( df.before(endDate) && df.after(beginDate) )
         {
-          variation = 0.0
-        }
+          
+          monthsCounter+=1
+          
+          val open = parseDouble( variable.array(5) )
         
-        var capital = updateCapital( previousCapital, variation )
-        //println( "varying: " + variation )  
-        previousValue = parseDouble(open);
-        previousCapital = parseDouble(capital)
-        
-        
-        
-        var tuple = new Array[Double](3)
-        tuple(0) = 1.0
-        tuple(1) = variation
-        tuple(2) = capital
-        
-        (name , tuple)
-        
-        /*if( variation > 0.0 )
-        {
-          ("gain" , tuple)
+          var variation = percentDifference( previousValue , open )
+          
+          if(variation.isNaN() || variation.isInfinite)
+          {
+            variation = 0.0
+          }
+
+          yearVariation += variation
+          if (monthsCounter == 12)
+          {
+            println(yearVariation)
+            monthsCounter = 0
+            yearVariation = 0.0
+          }
+          
+          
+          var capital = updateCapital( previousCapital, variation )
+          //println( "varying: " + variation )  
+          previousValue = parseDouble(open);
+          previousCapital = parseDouble(capital)
+          
+          
+          
+          var tuple = new Array[Double](3)
+          tuple(0) = 1.0
+          tuple(1) = variation
+          tuple(2) = capital
+          
+          (name , tuple)
+
         }
         else
         {
-          ("loss" , tuple)
-        }*/
-       }
+          ("discarded" , new Array[Double](3))
+        }
+      }
       .reduceByKey( accumulate ).collect().foreach( f => 
         {
           println(f._1)
           f._2.foreach(println)
         } )  
+  }
+  
+  def dateFormatter (str: String) : Date =
+  {
+     val format = new java.text.SimpleDateFormat("yyyy-MM-dd")
+     format.format(new java.util.Date())
+     var d = format.parse(str)
+     d
   }
     
   def main(args: Array[String]) = {
@@ -137,8 +161,18 @@ object WordCounter {
       .setAppName("WordCount")
       .setMaster("local")
     val sc = new SparkContext(conf)
+   
+    var beginDate = dateFormatter("2000-01-07")
+    var endDate = dateFormatter("2027-01-05")
     
-    evalueETF( "src/main/resources/VT.csv" , "src/main/resources/output.txt", parseDouble("10000"), sc, "Vangard Total Stock" )
+    evalueETF( "src/main/resources/VT.csv" , "src/main/resources/output.txt", parseDouble("10000"), sc, 
+        "Vangard Total Stock" , beginDate , endDate )
+        
+    evalueETF( "src/main/resources/BND.csv" , "src/main/resources/output.txt", parseDouble("10000"), sc, 
+        "Vangard Total Bond" , beginDate , endDate )    
+        
+    evalueETF( "src/main/resources/PHAU.MI.csv" , "src/main/resources/output.txt", parseDouble("10000"), sc, 
+        "Gold" , beginDate , endDate )    
 
 
     sc.stop 
