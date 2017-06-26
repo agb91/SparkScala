@@ -61,6 +61,16 @@ class MergerMultipleETF {
     var result = mappedRDD.reduceByKey( accumulateMerged )  
     result
   }
-  
+     
+     
+   val mergerAll: ( Array[RDD[ (String, Array[Double] ) ]] ) => RDD[ ( String, Array[Double] ) ] =
+   (allMappedRDD : Array[RDD[ (String, Array[Double]) ]]) => 
+   {
+      var result = allMappedRDD(0).filter(f => !f._1.equalsIgnoreCase("discarded")  )
+      for ( x <- allMappedRDD ) {
+         result = result.union(x).filter(h => !h._1.equalsIgnoreCase("discarded") )
+      }
+      result
+   }  
   
 }

@@ -35,19 +35,23 @@ object MainAnalyzer {
         "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
         "Vangard Total Bond" , beginDate , endDate, parser ) 
         
+    var mappedRDD3 = singleETFAnalyzer.mapperResult( "src/main/resources/PHAU.MI.csv" ,
+        "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
+        "Gold" , beginDate , endDate, parser ) 
         
-  // until here 2 different RDDs, splitted in months
         
+  // until here different RDDs, splitted in months
+   
+    val merger = new MergerMultipleETF with Serializable
+  //now are merged together  
+    var merged = merger.mergerAll( Array(mappedRDD1, mappedRDD2, mappedRDD3) )     
         
-    var merged = mappedRDD1.union(mappedRDD2).filter(f => !f._1.equalsIgnoreCase("discarded")) 
     merged.foreach(f=> 
       {
         //println("\n first: nome:" + f._1 + ":  variazione" + f._2(0) + "; capitale: " + f._2(1)  )
       }
     )
     //now they are merged in one through a union, still months
-    
-    val merger = new MergerMultipleETF with Serializable
     
     var reducedRDD = merger.reducerETFMerged(merged)    
         
