@@ -28,7 +28,6 @@ class Preprocessor {
       beginDate: Date, endDate: Date, parserSent: Parsers) 
   {
    val test = sc.textFile( input )
-
    var list: List[Double] = List()
    
    var maxValue = sc.accumulator(0.0)
@@ -37,22 +36,29 @@ class Preprocessor {
    var worstDrawdownPC = sc.accumulator(0.0)
    var worstDateDelta = sc.accumulator("")(StringAccumulatorParam) // two dates, the one of the max and the one of the worst
    
+   var newTextArray = Array[String]()
+   
    test.collect().foreach(word => //for each word
    {
-      val variable = word.split(",")
+      var variable = word.split(",")
       
       var value = parserSent.parseDouble( variable(5) )
       val date = variable.array(0)
-      val df = parserSent.dateFormatter(date)
-      if(df.getDay==1)
-      {  
+      val day = parserSent.dayFormatter(date)
+      var drawdown = 0.0
+      var drawdownPC = 0.0
+      if(day == 1 )
+      { 
+        drawdown = maxValue.value - value
+        drawdownPC = drawdown / maxValue.value
         if(value>maxValue.value) // here is the new max!
         {
           maxValue.setValue(value)
           maxDate.setValue(date)
+          drawdown = 0
+          drawdownPC = 0
         }else
         {
-          var drawdown = maxValue.value - value
           if( drawdown > worstDrawdown.value )// here is the new shittest situation
           {
             worstDrawdown.setValue(drawdown)
@@ -60,9 +66,18 @@ class Preprocessor {
             worstDrawdownPC.setValue( worstDrawdown.value / maxValue.value ) 
           }
         }
+        variable = variable :+ maxValue.value.toString()
+        variable = variable :+ drawdownPC.toString()
+        variable = variable :+ "wrote"
+        newTextArray = newTextArray :+ variable.mkString(",")
       }
-      
    })
+   
+   println("vettorono nuovo : " + newTextArray.length )
+   
+   var newText = sc.parallelize(newTextArray)
+   
+   newText.saveAsTextFile("/home/andrea/scala/Starter/src/main/resources/OUTPUT/" + name)
    
    println( name.toUpperCase() + ": worst moment was: -" + (worstDrawdownPC.value*100) + " perCent; realized between the dates:  " 
        + worstDateDelta.value)

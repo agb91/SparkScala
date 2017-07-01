@@ -47,20 +47,20 @@ object MainAnalyzer {
         "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
         "Borsa Italiana Euro Hedged Global Bond" , beginDate , endDate, parser )
       
-    preprocess.preProcess( "src/main/resources/BorsaItalianaETFSP500EUR-hedged.csv" ,
+  /*  preprocess.preProcess( "src/main/resources/BorsaItalianaETFSP500EUR-hedged.csv" ,
         "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
         "Borsa Italiana Euro Hedged SP500" , beginDate , endDate, parser )     
-    //END    
+    */ //END    
     
-        
+  /*      
     //SPARK WAY TO ANALYSE    
-   /* var mappedRDD1 = singleETFAnalyzer.mapperResult( "src/main/resources/TotalStockHistory.csv" ,
+    var mappedRDD1 = singleETFAnalyzer.mapperResult( "src/main/resources/BondGlobalIta(BarclaysGlobalAggregateBond).csv" ,
         "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
-        "Vangard Total Stock" , beginDate , endDate, parser ) 
+        "Borsa Italiana Euro Hedged Global Bond" , beginDate , endDate, parser ) 
         
-    var mappedRDD2 = singleETFAnalyzer.mapperResult( "src/main/resources/TotalBondHistory.csv" ,
+    var mappedRDD2 = singleETFAnalyzer.mapperResult( "src/main/resources/BorsaItalianaETFSP500EUR-hedged.csv" ,
         "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
-        "Vangard Total Bond" , beginDate , endDate, parser ) 
+        "Borsa Italiana Euro Hedged SP500" , beginDate , endDate, parser ) 
         
     var mappedRDD3 = singleETFAnalyzer.mapperResult( "src/main/resources/PHAU.MI.csv" ,
         "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
@@ -75,11 +75,13 @@ object MainAnalyzer {
         
     merged.foreach(f=> 
       {
-        //println("\n first: nome:" + f._1 + ":  variazione" + f._2(0) + "; capitale: " + f._2(1)  )
+        println("\n first: nome:" + f._1 + ":  variazione" + f._2(0) + "; capitale: " + f._2(1)  )
       }
-    )
+   
+   *  )
+   */
     //now they are merged in one through a union, still months
-    
+   /* 
     var reducedRDD = merger.reducerETFMerged(merged)    
         
     reducedRDD.foreach( f => 
