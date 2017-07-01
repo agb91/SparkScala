@@ -11,11 +11,15 @@ import com.pack.spark.Parsers
 import com.pack.spark.SingleETFAnalyzer
 import com.pack.spark.MergerMultipleETF
 
+import com.pack.spark.Preprocessor
+
 object MainAnalyzer {
       
   def main(args: Array[String]) = {
-
+    
+    
     val parser = new Parsers with Serializable
+    val preprocess = new Preprocessor with Serializable
     val singleETFAnalyzer = new SingleETFAnalyzer with Serializable
     
     //Start the Spark context
@@ -24,10 +28,33 @@ object MainAnalyzer {
       .setMaster("local")
     val sc = new SparkContext(conf)
    
-    var beginDate = parser.dateFormatter("2007-01-01")
+    var beginDate = parser.dateFormatter("1950-01-01")
     var endDate = parser.dateFormatter("2018-01-01")
     
-    var mappedRDD1 = singleETFAnalyzer.mapperResult( "src/main/resources/TotalStockHistory.csv" ,
+    //STANDART WAY TO ANALYSE:
+    
+    preprocess.preProcess( "src/main/resources/TotalStockHistory.csv" ,
+        "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
+        "Vangard Total Stock" , beginDate , endDate, parser )
+        
+        
+    preprocess.preProcess( "src/main/resources/TotalBondHistory.csv" ,
+        "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
+        "Vangard Total Bond" , beginDate , endDate, parser )
+        
+        
+    preprocess.preProcess( "src/main/resources/BondGlobalIta(BarclaysGlobalAggregateBond).csv" ,
+        "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
+        "Borsa Italiana Euro Hedged Global Bond" , beginDate , endDate, parser )
+      
+    preprocess.preProcess( "src/main/resources/BorsaItalianaETFSP500EUR-hedged.csv" ,
+        "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
+        "Borsa Italiana Euro Hedged SP500" , beginDate , endDate, parser )     
+    //END    
+    
+        
+    //SPARK WAY TO ANALYSE    
+   /* var mappedRDD1 = singleETFAnalyzer.mapperResult( "src/main/resources/TotalStockHistory.csv" ,
         "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
         "Vangard Total Stock" , beginDate , endDate, parser ) 
         
@@ -78,6 +105,6 @@ object MainAnalyzer {
           }
         } )
 
-    sc.stop 
+    sc.stop*/ 
   }
 }

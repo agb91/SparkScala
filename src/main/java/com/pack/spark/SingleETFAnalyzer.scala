@@ -44,14 +44,16 @@ class SingleETFAnalyzer() {
       beginDate: Date, endDate: Date, parserSent: Parsers) => 
   {
     val test = sc.textFile( input )
+    
     var previousValue = parserSent.parseDouble("0")
     var previousCapital = capital
+ 
+    
+    
     //println("outside: " + test.collect().length ) 
     test.map(word => //for each word
       {
         val variable = word.split(",")
-        
-        
         val date = variable.array(0)
         val df = parserSent.dateFormatter(date)
         
