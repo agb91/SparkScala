@@ -14,6 +14,18 @@
 	</pluginRepositories>
 	<dependencies>
 		<dependency>
+			<groupId>com.github.scala-incubator.io</groupId>
+			<artifactId>scala-io-core_2.11</artifactId>
+			<version>0.4.3-1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.scala-incubator.io</groupId>
+			<artifactId>scala-io-file_2.11</artifactId>
+			<version>0.4.3-1</version>
+		</dependency>
+	
+	
+		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-core_2.10</artifactId>
 			<version>1.4.0</version>

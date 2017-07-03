@@ -1,13 +1,14 @@
 package com.pack.spark
 
 import org.apache.spark.SparkConf
+import com.pack.spark.Utils
 import org.apache.spark.AccumulatorParam
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.rdd.PairRDDFunctions
 import java.util.Date
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
-import com.pack.spark.Parsers
+import com.pack.spark.parser.Parsers
 
 class Preprocessor {
   
@@ -25,7 +26,7 @@ class Preprocessor {
   
   
   def preProcess( input: String , output: String, capital: Double, sc: SparkContext, name: String, 
-      beginDate: Date, endDate: Date, parserSent: Parsers) 
+      beginDate: Date, endDate: Date, parserSent: Parsers, dateFormat: String) : RDD[(String)] =
   {
    val test = sc.textFile( input )
    var list: List[Double] = List()
@@ -37,6 +38,8 @@ class Preprocessor {
    var worstDateDelta = sc.accumulator("")(StringAccumulatorParam) // two dates, the one of the max and the one of the worst
    
    var newTextArray = Array[String]()
+   val utils = new Utils
+   var valueBefore = 0.0
    
    test.collect().foreach(word => //for each word
    {
@@ -44,7 +47,10 @@ class Preprocessor {
       
       var value = parserSent.parseDouble( variable(5) )
       val date = variable.array(0)
-      val day = parserSent.dayFormatter(date)
+      var dateFormatted = parserSent.dateFormatter(date, dateFormat)
+      
+      val day = dateFormatted.getDay
+      
       var drawdown = 0.0
       var drawdownPC = 0.0
       if(day == 1 )
@@ -66,22 +72,22 @@ class Preprocessor {
             worstDrawdownPC.setValue( worstDrawdown.value / maxValue.value ) 
           }
         }
-        variable = variable :+ maxValue.value.toString()
-        variable = variable :+ drawdownPC.toString()
-        variable = variable :+ "wrote"
-        newTextArray = newTextArray :+ variable.mkString(",")
+        
+        var variationPC = (value - valueBefore) / value
+        valueBefore = value
+        var piece = date + "," + value + "," + maxValue.value + "," + variationPC  
+        newTextArray = newTextArray :+ piece
       }
    })
    
-   println("vettorono nuovo : " + newTextArray.length )
-   
    var newText = sc.parallelize(newTextArray)
+   //var pathName = "/home/andrea/scala/Starter/src/main/resources/OUTPUT/" + name
    
-   newText.saveAsTextFile("/home/andrea/scala/Starter/src/main/resources/OUTPUT/" + name)
+   //newText.saveAsTextFile(pathName)
    
    println( name.toUpperCase() + ": worst moment was: -" + (worstDrawdownPC.value*100) + " perCent; realized between the dates:  " 
        + worstDateDelta.value)
-   
+   return newText
   }  
     
   

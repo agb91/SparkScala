@@ -6,7 +6,7 @@ import org.apache.spark.rdd.PairRDDFunctions
 import java.util.Date
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
-import com.pack.spark.Parsers
+import com.pack.spark.parser.Parsers
 import com.pack.spark.SingleETFAnalyzer
 
 class SingleETFAnalyzer() {
@@ -39,9 +39,9 @@ class SingleETFAnalyzer() {
   }
   
  
-  val mapperResult: (String,String,Double,SparkContext,String,Date,Date,Parsers) => RDD[(String, Array[Double])] = 
+  val mapperResult: (String,String,Double,SparkContext,String,Date,Date,Parsers,String) => RDD[(String, Array[Double])] = 
     ( input: String , output: String, capital: Double, sc: SparkContext, name: String, 
-      beginDate: Date, endDate: Date, parserSent: Parsers) => 
+      beginDate: Date, endDate: Date, parserSent: Parsers, dateFormat: String) => 
   {
     val test = sc.textFile( input )
     
@@ -55,7 +55,7 @@ class SingleETFAnalyzer() {
       {
         val variable = word.split(",")
         val date = variable.array(0)
-        val df = parserSent.dateFormatter(date)
+        val df = parserSent.dateFormatter(date, dateFormat)
         
         if( df.before(endDate) && df.after(beginDate) )
         {

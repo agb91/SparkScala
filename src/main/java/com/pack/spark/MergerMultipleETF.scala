@@ -7,7 +7,7 @@ import org.apache.spark.rdd.PairRDDFunctions
 import java.util.Date
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
-import com.pack.spark.Parsers
+import com.pack.spark.parser.Parsers
 
 class MergerMultipleETF {
   
