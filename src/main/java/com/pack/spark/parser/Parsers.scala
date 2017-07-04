@@ -34,9 +34,15 @@ class Parsers {
       var chunks = str.split( "/" )
       date = new MyDate( chunks(1).toInt ,chunks(0).toInt, chunks(2).toInt )
     }
+    if(format.equalsIgnoreCase("dd/MM/yyyy") )
+    {
+      var chunks = str.split( "/" )
+      date = new MyDate( chunks(0).toInt ,chunks(1).toInt, chunks(2).toInt )
+    }
     val f = new java.text.SimpleDateFormat("dd-MM-yyyy")
     f.format(new java.util.Date())
-    return f.parse(date.toStr())
+    var result =  f.parse(date.toStr())
+    result
   }
    
 }

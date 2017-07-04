@@ -1,7 +1,6 @@
 package com.pack.spark
 
 import org.apache.spark.SparkConf
-import com.pack.spark.Utils
 import org.apache.spark.AccumulatorParam
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.rdd.PairRDDFunctions
@@ -38,7 +37,7 @@ class Preprocessor {
    var worstDateDelta = sc.accumulator("")(StringAccumulatorParam) // two dates, the one of the max and the one of the worst
    
    var newTextArray = Array[String]()
-   val utils = new Utils
+
    var valueBefore = 0.0
    
    test.collect().foreach(word => //for each word
@@ -75,7 +74,8 @@ class Preprocessor {
         
         var variationPC = (value - valueBefore) / value
         valueBefore = value
-        var piece = date + "," + value + "," + maxValue.value + "," + variationPC  
+        var datePrint = dateFormatted.getDay + "/" + (dateFormatted.getMonth + 1) + "/" + (dateFormatted.getYear + 1900) 
+        var piece = datePrint + "," + value + "," + maxValue.value + "," + variationPC  
         newTextArray = newTextArray :+ piece
       }
    })

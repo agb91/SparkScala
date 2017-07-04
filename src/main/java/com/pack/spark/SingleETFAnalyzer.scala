@@ -39,16 +39,14 @@ class SingleETFAnalyzer() {
   }
   
  
-  val mapperResult: (String,String,Double,SparkContext,String,Date,Date,Parsers,String) => RDD[(String, Array[Double])] = 
-    ( input: String , output: String, capital: Double, sc: SparkContext, name: String, 
+  val mapperResult: (RDD[(String)],String,Double,SparkContext,String,Date,Date,Parsers,String) => RDD[(String, Array[Double])] = 
+    ( input: RDD[(String)] , output: String, capital: Double, sc: SparkContext, name: String, 
       beginDate: Date, endDate: Date, parserSent: Parsers, dateFormat: String) => 
   {
-    val test = sc.textFile( input )
+    val test = input
     
     var previousValue = parserSent.parseDouble("0")
     var previousCapital = capital
- 
-    
     
     //println("outside: " + test.collect().length ) 
     test.map(word => //for each word
@@ -59,22 +57,25 @@ class SingleETFAnalyzer() {
         
         if( df.before(endDate) && df.after(beginDate) )
         {
-          val open = parserSent.parseDouble( variable.array(5) )
-          var variation = percentDifference( previousValue , open )
+          val value = parserSent.parseDouble( variable.array(1) )
+          var variation = percentDifference( previousValue , value )
           var capital = updateCapital( previousCapital, variation )
-          previousValue = parserSent.parseDouble(open);
+          previousValue = parserSent.parseDouble( value );
           previousCapital = parserSent.parseDouble(capital)
+          var maxValue = parserSent.parseDouble( variable.array(2) )
+          var drawdownPC = ( (maxValue - value) / maxValue)
           
-          var tuple = new Array[Double](2)
+          var tuple = new Array[Double](3)
           tuple(0) = variation
           tuple(1) = capital
+          tuple(2) = drawdownPC
           //println(tuple(1))
           ( (df.getYear+1900 + "-" + name) , tuple)
           
         }
         else
         {
-          ("discarded" , new Array[Double](2))
+          ("discarded" , new Array[Double](3))
         }
       } )
   }

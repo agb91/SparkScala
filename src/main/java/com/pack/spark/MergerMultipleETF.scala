@@ -14,9 +14,10 @@ class MergerMultipleETF {
     def secondAccumulate (accumulator: Array[Double], toAdd: Array[Double]) : Array[Double] =
   {
     
-    var result = Array[Double](0,0)
+    var result = Array[Double](0,0,0)
     result(0) = accumulator(0) + toAdd(0)
     result(1) = accumulator(1) + toAdd(1)
+    result(2) = accumulator(2) + toAdd(2)
     result
   }
   
@@ -27,10 +28,10 @@ class MergerMultipleETF {
       {
         var name = line._1.split("-")(0)
         
-        var tuple = new Array[Double](2)
+        var tuple = new Array[Double](3)
         tuple(0) = line._2(0)
         tuple(1) = line._2(1)
-        
+        tuple(2) = line._2(2)
         ( name , tuple )
       })
       result
@@ -40,9 +41,10 @@ class MergerMultipleETF {
   def accumulateMerged (accumulator: Array[Double], toAdd: Array[Double] )
   : Array[Double] =
   {
-    var result = Array[Double](0,0)
+    var result = Array[Double](0,0,0)
     result(0) = accumulator(0) + toAdd(0)
     result(1) = toAdd(1)
+    result(2) = toAdd(2)
     //println( "variazione questa: " + toAdd(0) + "; finora: " + accumulator(0) + "; quindi risulta: " + result(0) )
  
     result
