@@ -11,16 +11,21 @@ import com.pack.spark.parser.Parsers
 
 class MergerMultipleETF {
   
+  // 0 is total variation so capital divided per the initial capital, 
+  //1 is capital at the moment splitted in indexes.. sum it, 
+  //third is drawdown splitted in various indexes that year, to sum [and after divide for the number of splits].
     def secondAccumulate (accumulator: Array[Double], toAdd: Array[Double]) : Array[Double] =
   {
     
     var result = Array[Double](0,0,0)
-    result(0) = accumulator(0) + toAdd(0)
-    result(1) = accumulator(1) + toAdd(1)
-    result(2) = accumulator(2) + toAdd(2)
+    result(1) = accumulator(1) + toAdd(1) 
+    result(2) = accumulator(2) + toAdd(2) 
     result
   }
   
+    
+    //actually id does nothing: it simply modifies the name in order to merge the index no matter the years doing
+    // an historical result
   val secondMapperETF: ( RDD[ (String, Array[Double]) ]) => RDD[ (String, Array[Double]) ] =
    ( input: RDD[ (String, Array[Double]) ]) =>
   {
@@ -37,14 +42,23 @@ class MergerMultipleETF {
       result
   }
   
-  
+  //name is year and type ,0 is variation to cumulate, 1 is capital to copy, 2 is drawdown to find worst
   def accumulateMerged (accumulator: Array[Double], toAdd: Array[Double] )
   : Array[Double] =
   {
     var result = Array[Double](0,0,0)
     result(0) = accumulator(0) + toAdd(0)
     result(1) = toAdd(1)
-    result(2) = toAdd(2)
+    var maxDD = 0.0
+    if(toAdd(2) > accumulator(2))
+    {
+      maxDD = toAdd(2)
+    }
+    else
+    {
+      maxDD = accumulator(2)
+    }
+    result(2) = maxDD
     //println( "variazione questa: " + toAdd(0) + "; finora: " + accumulator(0) + "; quindi risulta: " + result(0) )
  
     result

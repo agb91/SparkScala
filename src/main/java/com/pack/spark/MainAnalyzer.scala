@@ -27,8 +27,10 @@ object MainAnalyzer {
       .setMaster("local")
     val sc = new SparkContext(conf)
    
-    var beginDate = parser.dateFormatter("1950-01-01", "yyyy-MM-dd" )
+    var beginDate = parser.dateFormatter("2006-01-01", "yyyy-MM-dd" )
     var endDate = parser.dateFormatter("2018-01-01" , "yyyy-MM-dd")
+    
+    var yearsLong = endDate.yyyy - beginDate.yyyy
     
     //STANDART WAY TO ANALYSE:
     
@@ -38,8 +40,9 @@ object MainAnalyzer {
         
     var rdd2 = preprocess.preProcess( "src/main/resources/BondGlobalIta(BarclaysGlobalAggregateBond).csv" ,
         "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
-        "Borsa Italiana Euro Hedged Global Bond" , beginDate , endDate, parser, "yyyy-MM-dd" )
+        "BOND Euro Hedged Global borsa italiana" , beginDate , endDate, parser, "yyyy-MM-dd" )
           
+        
     //SPARK WAY TO ANALYSE    
     var mappedRDD1 = singleETFAnalyzer.mapperResult( rdd1 ,
         "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
@@ -47,8 +50,10 @@ object MainAnalyzer {
         
     var mappedRDD2 = singleETFAnalyzer.mapperResult( rdd2 ,
         "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
-        "Borsa Italiana Euro Hedged Global Bond" , beginDate , endDate, parser, "dd/MM/yyyy" ) 
+        "BOND Euro Hedged Global borsa italiana" , beginDate , endDate, parser, "dd/MM/yyyy" ) 
         
+      
+      
     var arrayMapped = Array( mappedRDD1 , mappedRDD2 )    
   // until here different RDDs, splitted in months
    
@@ -56,43 +61,44 @@ object MainAnalyzer {
   //now are merged together  
     
     var merged = merger.mergerAll( arrayMapped )     
+    
     /*merged.foreach(f=> 
       {
         println("\n first: nome:" + f._1 + ":  variazione" + f._2(0) + "; capitale: " + f._2(1) + 
             "; drawdawn ora: " + f._2(2)  )
       }
     )*/
-    //now they are merged in one through a union, still months
     
+    //now they are merged in one through a union, still months
     var reducedRDD = merger.reducerETFMerged(merged)    
         
-    /*reducedRDD.foreach( f => 
+   /* reducedRDD.foreach( f => 
         {
           println("\n anno-nome:" + f._1 + ":  variazione" + f._2(0) + "; capitale: " + f._2(1) 
-              + "; drawdown ora: "  + f._2(2) )
+              + "; drawdown peggiore dell'anno: "  + (f._2(2)*100) + " % " )
         } )  
-      */  
-        //NOW ARE YEARS!, dividen in bond e stock
+     */ 
+        //NOW ARE YEARS!
         
     var secondMapped = merger.secondMapperETF(reducedRDD)
-    /*secondMapped.foreach(f => 
+    secondMapped.foreach(f => 
         {
           println("id:" + f._1 + ":  variazione : " + f._2(0) + "; capital : " + f._2(1) +
-              "; drawdawn ora: " + f._2(2) )
+              ";drawdawn ora: " + f._2(2) )
         } )
-    */
+    
     var finalSum = merger.secondReducerETF(secondMapped)
             
     finalSum.foreach(f => 
         {
-          if(f._1.equalsIgnoreCase( endDate.getYear.toString() ) || f._1.equalsIgnoreCase( "2017" ) )
+          if(f._1.equalsIgnoreCase( endDate.yyyy.toString() ) || f._1.equalsIgnoreCase( "2017" ) )
           {
-            println("id:" + f._1 + "; capital : " + f._2(1)  )
+            
+            println("id:" + f._1 + "average yield per year: " + (( f._2(1) / (100  *arrayMapped.length) )/yearsLong) 
+                + "% ; final capital : " + f._2(1)  )
           }
         } )
-        
-        TROVA MAX DRAWDOWN
-
+      
     sc.stop 
   }
 }

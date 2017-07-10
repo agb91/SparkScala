@@ -1,6 +1,7 @@
 package com.pack.spark
 
 import org.apache.spark.SparkConf
+import com.pack.spark.parser.MyDate
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.rdd.PairRDDFunctions
 import java.util.Date
@@ -30,21 +31,32 @@ class SingleETFAnalyzer() {
     result
   }
   
+  //accumulate: variation, copy capital and find max of yearly drawdown (respect the previous max, no matter 
+  //in which years this max is)
   def accumulate (accumulator: Array[Double], toAdd: Array[Double]) : Array[Double] =
   {
-    var result = Array[Double](0,0)
+    var result = Array[Double](0,0,0)
     result(0) = accumulator(0) + toAdd(0)
     result(1) = toAdd(1)
+    var maxDD = 0.0;
+    if( toAdd(2) > accumulator(2) )
+    {
+      maxDD = toAdd(2)
+    }
+    else
+    {
+      maxDD = accumulator(2)
+    }
+    result(2) = maxDD
     result
   }
   
- 
-  val mapperResult: (RDD[(String)],String,Double,SparkContext,String,Date,Date,Parsers,String) => RDD[(String, Array[Double])] = 
+ // give back: variation, capital, drawdown(instant, not need to comulate it) indexed by YEAR-NAME
+  val mapperResult: (RDD[(String)],String,Double,SparkContext,String,MyDate,MyDate,Parsers,String) => RDD[(String, Array[Double])] = 
     ( input: RDD[(String)] , output: String, capital: Double, sc: SparkContext, name: String, 
-      beginDate: Date, endDate: Date, parserSent: Parsers, dateFormat: String) => 
+      beginDate: MyDate, endDate: MyDate, parserSent: Parsers, dateFormat: String) => 
   {
     val test = input
-    
     var previousValue = parserSent.parseDouble("0")
     var previousCapital = capital
     
@@ -55,7 +67,8 @@ class SingleETFAnalyzer() {
         val date = variable.array(0)
         val df = parserSent.dateFormatter(date, dateFormat)
         
-        if( df.before(endDate) && df.after(beginDate) )
+        if( df.before( endDate.dd, endDate.mm, endDate.yyyy ) 
+            && df.after( beginDate.dd, beginDate.mm, beginDate.yyyy ) )
         {
           val value = parserSent.parseDouble( variable.array(1) )
           var variation = percentDifference( previousValue , value )
@@ -70,7 +83,7 @@ class SingleETFAnalyzer() {
           tuple(1) = capital
           tuple(2) = drawdownPC
           //println(tuple(1))
-          ( (df.getYear+1900 + "-" + name) , tuple)
+          ( (df.yyyy + "-" + name) , tuple)
           
         }
         else

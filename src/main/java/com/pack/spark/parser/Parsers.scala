@@ -21,7 +21,7 @@ class Parsers {
 
     
      
-  def dateFormatter (str: String , format: String) : Date =
+  def dateFormatter (str: String , format: String) : MyDate =
   {
     var date: MyDate = null
     if(format.equalsIgnoreCase("yyyy-MM-dd") )
@@ -39,10 +39,7 @@ class Parsers {
       var chunks = str.split( "/" )
       date = new MyDate( chunks(0).toInt ,chunks(1).toInt, chunks(2).toInt )
     }
-    val f = new java.text.SimpleDateFormat("dd-MM-yyyy")
-    f.format(new java.util.Date())
-    var result =  f.parse(date.toStr())
-    result
+    date
   }
    
 }

@@ -8,6 +8,7 @@ import java.util.Date
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import com.pack.spark.parser.Parsers
+import com.pack.spark.parser.MyDate
 
 class Preprocessor {
   
@@ -25,7 +26,7 @@ class Preprocessor {
   
   
   def preProcess( input: String , output: String, capital: Double, sc: SparkContext, name: String, 
-      beginDate: Date, endDate: Date, parserSent: Parsers, dateFormat: String) : RDD[(String)] =
+      beginDate: MyDate, endDate: MyDate, parserSent: Parsers, dateFormat: String) : RDD[(String)] =
   {
    val test = sc.textFile( input )
    var list: List[Double] = List()
@@ -42,14 +43,13 @@ class Preprocessor {
    
    test.collect().foreach(word => //for each word
    {
-      var variable = word.split(",")
-      
+      var variable = word.split(",")  
       var value = parserSent.parseDouble( variable(5) )
       val date = variable.array(0)
+      
       var dateFormatted = parserSent.dateFormatter(date, dateFormat)
       
-      val day = dateFormatted.getDay
-      
+      val day = dateFormatted.dd
       var drawdown = 0.0
       var drawdownPC = 0.0
       if(day == 1 )
@@ -74,7 +74,7 @@ class Preprocessor {
         
         var variationPC = (value - valueBefore) / value
         valueBefore = value
-        var datePrint = dateFormatted.getDay + "/" + (dateFormatted.getMonth + 1) + "/" + (dateFormatted.getYear + 1900) 
+        var datePrint = dateFormatted.dd + "/" + (dateFormatted.mm) + "/" + (dateFormatted.yyyy) 
         var piece = datePrint + "," + value + "," + maxValue.value + "," + variationPC  
         newTextArray = newTextArray :+ piece
       }
