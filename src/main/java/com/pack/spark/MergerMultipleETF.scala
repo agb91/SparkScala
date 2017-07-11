@@ -13,7 +13,6 @@ class MergerMultipleETF {
   
   // 0 is total variation so capital divided per the initial capital, 
   //1 is capital at the moment splitted in indexes.. sum it, 
-  //third is drawdown splitted in various indexes that year, to sum [and after divide for the number of splits].
     def secondAccumulate (accumulator: Array[Double], toAdd: Array[Double]) : Array[Double] =
   {
     
@@ -42,7 +41,8 @@ class MergerMultipleETF {
       result
   }
   
-  //name is year and type ,0 is variation to cumulate, 1 is capital to copy, 2 is drawdown to find worst
+  //merge by years and name
+  //yearName is index ,0 is variation to cumulate, 1 is capital to copy, 2 is drawdown to find worst
   def accumulateMerged (accumulator: Array[Double], toAdd: Array[Double] )
   : Array[Double] =
   {
@@ -64,6 +64,7 @@ class MergerMultipleETF {
     result
   }
   
+  //give back for each year variation of the year and capital at the moment
   val secondReducerETF: (RDD[ (String, Array[Double]) ]) => RDD[(String, Array[Double])] =
     (mappedRDD : RDD[ (String, Array[Double]) ]) => 
   {
@@ -71,6 +72,8 @@ class MergerMultipleETF {
     result
   }
   
+  //merge by years and name
+  //yearName is index ,0 is variation to cumulate, 1 is capital to copy, 2 is drawdown to find worst
    val reducerETFMerged: ( RDD[ (String, Array[Double] ) ]) => RDD[ ( String, Array[Double] ) ] =
      (mappedRDD : RDD[ (String, Array[Double]) ]) => {
     //mappedRDD.foreach(println)

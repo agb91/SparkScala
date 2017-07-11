@@ -51,8 +51,9 @@ class SingleETFAnalyzer() {
     result
   }
   
- // give back: variation, capital, drawdown(instant, not need to comulate it) indexed by YEAR-NAME
-  val mapperResult: (RDD[(String)],String,Double,SparkContext,String,MyDate,MyDate,Parsers,String) => RDD[(String, Array[Double])] = 
+ // give back a RDD: YearName, variation, capital, drawdown(instant, not need to comulate it) indexed by YEAR-NAME
+  val mapperResult: (RDD[(String)],String,Double,SparkContext,String,MyDate,MyDate,Parsers,String) => 
+    RDD[(String, Array[Double])] = 
     ( input: RDD[(String)] , output: String, capital: Double, sc: SparkContext, name: String, 
       beginDate: MyDate, endDate: MyDate, parserSent: Parsers, dateFormat: String) => 
   {
@@ -76,7 +77,7 @@ class SingleETFAnalyzer() {
           previousValue = parserSent.parseDouble( value );
           previousCapital = parserSent.parseDouble(capital)
           var maxValue = parserSent.parseDouble( variable.array(2) )
-          var drawdownPC = ( (maxValue - value) / maxValue)
+          var drawdownPC = ( (maxValue - value) / maxValue) * 100
           
           var tuple = new Array[Double](3)
           tuple(0) = variation

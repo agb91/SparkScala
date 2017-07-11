@@ -41,6 +41,8 @@ class Preprocessor {
 
    var valueBefore = 0.0
    
+   
+   //it returns a string: date, value, maxvalue, variationPC
    test.collect().foreach(word => //for each word
    {
       var variable = word.split(",")  
