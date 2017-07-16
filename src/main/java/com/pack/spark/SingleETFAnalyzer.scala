@@ -35,61 +35,62 @@ class SingleETFAnalyzer() {
   //in which years this max is)
   def accumulate (accumulator: Array[Double], toAdd: Array[Double]) : Array[Double] =
   {
-    var result = Array[Double](0,0,0)
+    var result = Array[Double](0,0)
     result(0) = accumulator(0) + toAdd(0)
-    result(1) = toAdd(1)
     var maxDD = 0.0;
-    if( toAdd(2) > accumulator(2) )
+    if( toAdd(1) > accumulator(1) )
     {
-      maxDD = toAdd(2)
+      maxDD = toAdd(1)
     }
     else
     {
-      maxDD = accumulator(2)
+      maxDD = accumulator(1)
     }
-    result(2) = maxDD
+    result(1) = maxDD
     result
   }
   
- // give back a RDD: YearName, variation, capital, drawdown(instant, not need to comulate it) indexed by YEAR-NAME
+ // give back a RDD: YearName, variationPCFromJanuary, drawdown(instant, not need to comulate it) indexed by YEAR-NAME
   val mapperResult: (RDD[(String)],String,Double,SparkContext,String,MyDate,MyDate,Parsers,String) => 
     RDD[(String, Array[Double])] = 
     ( input: RDD[(String)] , output: String, capital: Double, sc: SparkContext, name: String, 
       beginDate: MyDate, endDate: MyDate, parserSent: Parsers, dateFormat: String) => 
   {
     val test = input
-    var previousValue = parserSent.parseDouble("0")
-    var previousCapital = capital
-    
-    //println("outside: " + test.collect().length ) 
+    //datePrint + "," + value + ","  + maxValue.value + "," + variationPC + "," + variationFromJanuary  
     test.map(word => //for each word
       {
         val variable = word.split(",")
         val date = variable.array(0)
         val df = parserSent.dateFormatter(date, dateFormat)
+        var _capital = capital
         
         if( df.before( endDate.dd, endDate.mm, endDate.yyyy ) 
             && df.after( beginDate.dd, beginDate.mm, beginDate.yyyy ) )
         {
-          val value = parserSent.parseDouble( variable.array(1) )
-          var variation = percentDifference( previousValue , value )
-          var capital = updateCapital( previousCapital, variation )
-          previousValue = parserSent.parseDouble( value );
-          previousCapital = parserSent.parseDouble(capital)
+          var value = parserSent.parseDouble( variable.array(1) )
+          var variationFromJanuary = parserSent.parseDouble( variable.array(4) )
+          var variationFromJanuaryWeighted = variationFromJanuary * capital
           var maxValue = parserSent.parseDouble( variable.array(2) )
           var drawdownPC = ( (maxValue - value) / maxValue) * 100
-          
-          var tuple = new Array[Double](3)
-          tuple(0) = variation
-          tuple(1) = capital
-          tuple(2) = drawdownPC
+          var drawdownPCWeighted = drawdownPC * capital 
+          var tuple = new Array[Double](5)
+          tuple(0) = value
+          tuple(1) = variationFromJanuaryWeighted
+          tuple(2) = drawdownPCWeighted
+          tuple(3) = _capital
+          tuple(4) = 1
           //println(tuple(1))
-          ( (df.yyyy + "-" + name) , tuple)
+          ( (df.yyyy + "-" + df.mm) , tuple)
           
         }
         else
         {
-          ("discarded" , new Array[Double](3))
+          var tuple = new Array[Double](5)
+          tuple(0) = 1
+          tuple(1) = 1
+          tuple(2) = 1
+          ("discarded" , tuple)
         }
       } )
   }

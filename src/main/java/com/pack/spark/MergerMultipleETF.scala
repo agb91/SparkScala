@@ -22,45 +22,44 @@ class MergerMultipleETF {
     result
   }
   
-    
-    //actually id does nothing: it simply modifies the name in order to merge the index no matter the years doing
-    // an historical result
+  //1 = totalVariationWeighted, 2 totalDrawdown weighted, 3 totalCApital  
   val secondMapperETF: ( RDD[ (String, Array[Double]) ]) => RDD[ (String, Array[Double]) ] =
    ( input: RDD[ (String, Array[Double]) ]) =>
   {
     val result = input.map(line=>
       {
         var name = line._1.split("-")(0)
+        var month = line._1.split("-")(1)
+        if( month.equalsIgnoreCase("12") )
+        {
+          var tuple = new Array[Double](2)
+          tuple(0) = line._2(1)/line._2(3)
+          tuple(1) = line._2(2)/line._2(3)
+          ( name , tuple )
+        }
+        else
+        {
+          ( "discarded" , new Array[Double](2) )
+        }
         
-        var tuple = new Array[Double](3)
-        tuple(0) = line._2(0)
-        tuple(1) = line._2(1)
-        tuple(2) = line._2(2)
-        ( name , tuple )
       })
       result
   }
   
   //merge by years and name
-  //yearName is index ,0 is variation to cumulate, 1 is capital to copy, 2 is drawdown to find worst
+  //yearName is index ,0 is value,1 = variationFromJanuaryWeighted, 2 = drawdownPCWeighted, 3 = capital
   def accumulateMerged (accumulator: Array[Double], toAdd: Array[Double] )
   : Array[Double] =
   {
-    var result = Array[Double](0,0,0)
-    result(0) = accumulator(0) + toAdd(0)
-    result(1) = toAdd(1)
-    var maxDD = 0.0
-    if(toAdd(2) > accumulator(2))
-    {
-      maxDD = toAdd(2)
-    }
-    else
-    {
-      maxDD = accumulator(2)
-    }
-    result(2) = maxDD
-    //println( "variazione questa: " + toAdd(0) + "; finora: " + accumulator(0) + "; quindi risulta: " + result(0) )
- 
+    var result = Array[Double](0,0,0,0,0) //variationFromJanuary-weighted, drawdow now weighted, totalCapital
+    var totalVariation = accumulator(1) + toAdd(1) //to divide per total capital
+    var totalDrawdown = accumulator(2) + toAdd(2) //to divide per total capital
+    var totalCapital = accumulator(3) + toAdd(3) 
+    result(0) = ( accumulator(0)*accumulator(3) ) + ( toAdd(0)*toAdd(3) ) //useless
+    result(1) = totalVariation
+    result(2) = totalDrawdown
+    result(3) = totalCapital
+    result(4) = accumulator(4) + toAdd(4) //counter
     result
   }
   
@@ -73,7 +72,7 @@ class MergerMultipleETF {
   }
   
   //merge by years and name
-  //yearName is index ,0 is variation to cumulate, 1 is capital to copy, 2 is drawdown to find worst
+  //yearName is index ,0 is value,1 = variationFromJanuary, 2 = drawdownPC, 3 = capital
    val reducerETFMerged: ( RDD[ (String, Array[Double] ) ]) => RDD[ ( String, Array[Double] ) ] =
      (mappedRDD : RDD[ (String, Array[Double]) ]) => {
     //mappedRDD.foreach(println)
@@ -86,8 +85,9 @@ class MergerMultipleETF {
    (allMappedRDD : Array[RDD[ (String, Array[Double]) ]]) => 
    {
       var result = allMappedRDD(0).filter(f => !f._1.equalsIgnoreCase("discarded")  )
-      for ( x <- allMappedRDD ) {
-         result = result.union(x).filter(h => !h._1.equalsIgnoreCase("discarded") )
+      
+      for ( i <- 1 to (allMappedRDD.length - 1) ) {
+         result = result.union( allMappedRDD(i) ).filter(h => !h._1.equalsIgnoreCase("discarded") )
       }
       result
    }  

@@ -33,16 +33,18 @@ class Preprocessor {
    
    var maxValue = sc.accumulator(0.0)
    var maxDate = sc.accumulator("")(StringAccumulatorParam)
-   var worstDrawdown = sc.accumulator(0.0)
-   var worstDrawdownPC = sc.accumulator(0.0)
-   var worstDateDelta = sc.accumulator("")(StringAccumulatorParam) // two dates, the one of the max and the one of the worst
-   
+   //var worstDrawdown = sc.accumulator(0.0)
+   //var worstDrawdownPC = sc.accumulator(0.0)
+   //var worstDateDelta = sc.accumulator("")(StringAccumulatorParam) // two dates, the one of the max and the one of the worst
+   var dateBefore = beginDate;
    var newTextArray = Array[String]()
+   var valueJanuary = 0.0
+   var variationFromJanuary = 0.0
 
    var valueBefore = 0.0
    
    
-   //it returns a string: date, value, maxvalue, variationPC
+   //it returns a string: date, value, maxvalue, variationPC, variationPC from Janaury
    test.collect().foreach(word => //for each word
    {
       var variable = word.split(",")  
@@ -51,11 +53,17 @@ class Preprocessor {
       
       var dateFormatted = parserSent.dateFormatter(date, dateFormat)
       
-      val day = dateFormatted.dd
       var drawdown = 0.0
       var drawdownPC = 0.0
-      if(day == 1 )
+      if(dateBefore.mm != dateFormatted.mm ) // if it is a new month
       { 
+        //println("take data: " + dateFormatted.toStr() )
+        if(dateBefore.yyyy != dateFormatted.yyyy)//if it is  january so year changes
+        {
+          //println("it's january: " + dateFormatted.toStr())
+          valueJanuary = value
+        }
+        dateBefore = dateFormatted
         drawdown = maxValue.value - value
         drawdownPC = drawdown / maxValue.value
         if(value>maxValue.value) // here is the new max!
@@ -64,7 +72,8 @@ class Preprocessor {
           maxDate.setValue(date)
           drawdown = 0
           drawdownPC = 0
-        }else
+        }
+        /*else
         {
           if( drawdown > worstDrawdown.value )// here is the new shittest situation
           {
@@ -72,12 +81,13 @@ class Preprocessor {
             worstDateDelta.setValue( maxDate.value + " --> " + date)
             worstDrawdownPC.setValue( worstDrawdown.value / maxValue.value ) 
           }
-        }
+        }*/
         
-        var variationPC = (value - valueBefore) / value
+        var variationPC = ( (value - valueBefore) / value) * 100
+        var variationFromJanuary = ( (value - valueJanuary) / value) * 100
         valueBefore = value
         var datePrint = dateFormatted.dd + "/" + (dateFormatted.mm) + "/" + (dateFormatted.yyyy) 
-        var piece = datePrint + "," + value + "," + maxValue.value + "," + variationPC  
+        var piece = datePrint + "," + value + ","  + maxValue.value + "," + variationPC + "," + variationFromJanuary  
         newTextArray = newTextArray :+ piece
       }
    })
@@ -87,8 +97,8 @@ class Preprocessor {
    
    //newText.saveAsTextFile(pathName)
    
-   println( name.toUpperCase() + ": worst moment was: -" + (worstDrawdownPC.value*100) + " perCent; realized between the dates:  " 
-       + worstDateDelta.value)
+  // println( name.toUpperCase() + ": worst moment was: -" + (worstDrawdownPC.value*100) + " perCent; realized between the dates:  " 
+  //     + worstDateDelta.value)
    return newText
   }  
     

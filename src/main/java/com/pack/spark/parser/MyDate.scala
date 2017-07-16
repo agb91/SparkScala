@@ -11,17 +11,17 @@ class MyDate(_dd:Int, _mm:Int, _yyyy:Int ) extends Serializable{
   def before( ddCheck:Int, mmCheck:Int, yyyyCheck:Int ): Boolean =
   {
     
-    if( yyyyCheck > yyyy )
+    if( yyyyCheck >= yyyy )
     {
       return true
     }
     
-    if(yyyyCheck==yyyy && mmCheck>mm)
+    if(yyyyCheck==yyyy && mmCheck>=mm)
     {
       return true
     }
     
-    if(yyyyCheck==yyyy && mmCheck==mm && ddCheck>dd)
+    if(yyyyCheck==yyyy && mmCheck==mm && ddCheck>=dd)
     {
       return true
     }
