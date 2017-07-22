@@ -26,7 +26,8 @@ class Preprocessor {
   
   
   def preProcess( capital: Double, sc: SparkContext, name: String, 
-      beginDate: MyDate, endDate: MyDate, parserSent: Parsers, dateFormat: String, datas: RDD[(String)] ) : RDD[(String)] =
+      beginDate: MyDate, endDate: MyDate, parserSent: Parsers, dateFormat: String, datas: RDD[(String)] ) 
+  : RDD[(String)] =
   {
    var list: List[Double] = List()
    
@@ -39,8 +40,9 @@ class Preprocessor {
    var newTextArray = Array[String]()
    var valueJanuary = 0.0
    var variationFromJanuary = 0.0
-
+       
    var valueBefore = 0.0
+   var variationPC = 0.0
    
    
    //it returns a string: date, value, maxvalue, variationPC, variationPC from Janaury
@@ -82,13 +84,20 @@ class Preprocessor {
                 worstDrawdownPC.setValue( worstDrawdown.value / maxValue.value ) 
               }
             }
+            if( valueBefore != 0 )
+            {
+               variationPC = ( (value - valueBefore) / valueBefore) * 100
+            }
+            println("VJ: " + valueJanuary)
+            if( valueJanuary != 0 )
+            {
+              variationFromJanuary = ( (value - valueJanuary) / valueJanuary) * 100
+            }
+            //println("VfromJ: " + variationFromJanuary)
             
-            var variationPC = ( (value - valueBefore) / value) * 100
-            var variationFromJanuary = ( (value - valueJanuary) / value) * 100
             valueBefore = value
             var datePrint = dateFormatted.dd + "/" + (dateFormatted.mm) + "/" + (dateFormatted.yyyy) 
-            var piece = datePrint + "," + value + ","  + maxValue.value + "," + variationPC + "," 
-            + variationFromJanuary  
+            var piece = datePrint + "," + value + ","  + maxValue.value + "," + variationPC + "," + variationFromJanuary  
             newTextArray = newTextArray :+ piece
         }
      }
