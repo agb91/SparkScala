@@ -25,17 +25,16 @@ class Preprocessor {
   }
   
   
-  def preProcess( input: String , output: String, capital: Double, sc: SparkContext, name: String, 
-      beginDate: MyDate, endDate: MyDate, parserSent: Parsers, dateFormat: String) : RDD[(String)] =
+  def preProcess( capital: Double, sc: SparkContext, name: String, 
+      beginDate: MyDate, endDate: MyDate, parserSent: Parsers, dateFormat: String, datas: RDD[(String)] ) : RDD[(String)] =
   {
-   val test = sc.textFile( input )
    var list: List[Double] = List()
    
    var maxValue = sc.accumulator(0.0)
    var maxDate = sc.accumulator("")(StringAccumulatorParam)
-   //var worstDrawdown = sc.accumulator(0.0)
-   //var worstDrawdownPC = sc.accumulator(0.0)
-   //var worstDateDelta = sc.accumulator("")(StringAccumulatorParam) // two dates, the one of the max and the one of the worst
+   var worstDrawdown = sc.accumulator(0.0)
+   var worstDrawdownPC = sc.accumulator(0.0)
+   var worstDateDelta = sc.accumulator("")(StringAccumulatorParam) // two dates, the one of the max and the one of the worst
    var dateBefore = beginDate;
    var newTextArray = Array[String]()
    var valueJanuary = 0.0
@@ -45,51 +44,54 @@ class Preprocessor {
    
    
    //it returns a string: date, value, maxvalue, variationPC, variationPC from Janaury
-   test.collect().foreach(word => //for each word
+   datas.collect().foreach(word => //for each word
    {
-      var variable = word.split(",")  
-      var value = parserSent.parseDouble( variable(5) )
-      val date = variable.array(0)
-      
-      var dateFormatted = parserSent.dateFormatter(date, dateFormat)
-      
-      var drawdown = 0.0
-      var drawdownPC = 0.0
-      if(dateBefore.mm != dateFormatted.mm ) // if it is a new month
-      { 
-        //println("take data: " + dateFormatted.toStr() )
-        if(dateBefore.yyyy != dateFormatted.yyyy)//if it is  january so year changes
-        {
-          //println("it's january: " + dateFormatted.toStr())
-          valueJanuary = value
-        }
-        dateBefore = dateFormatted
-        drawdown = maxValue.value - value
-        drawdownPC = drawdown / maxValue.value
-        if(value>maxValue.value) // here is the new max!
-        {
-          maxValue.setValue(value)
-          maxDate.setValue(date)
-          drawdown = 0
-          drawdownPC = 0
-        }
-        /*else
-        {
-          if( drawdown > worstDrawdown.value )// here is the new shittest situation
-          {
-            worstDrawdown.setValue(drawdown)
-            worstDateDelta.setValue( maxDate.value + " --> " + date)
-            worstDrawdownPC.setValue( worstDrawdown.value / maxValue.value ) 
-          }
-        }*/
+     if(word.length()>0)
+     {
+        var variable = word.split(",")  
+        var value = parserSent.parseDouble( variable(5).trim )
+        val date = variable.array(0).trim
+        var dateFormatted = parserSent.dateFormatter(date, dateFormat)
         
-        var variationPC = ( (value - valueBefore) / value) * 100
-        var variationFromJanuary = ( (value - valueJanuary) / value) * 100
-        valueBefore = value
-        var datePrint = dateFormatted.dd + "/" + (dateFormatted.mm) + "/" + (dateFormatted.yyyy) 
-        var piece = datePrint + "," + value + ","  + maxValue.value + "," + variationPC + "," + variationFromJanuary  
-        newTextArray = newTextArray :+ piece
-      }
+        var drawdown = 0.0
+        var drawdownPC = 0.0
+        if(dateBefore.mm != dateFormatted.mm ) // if it is a new month
+        { 
+          //println("take data: " + dateFormatted.toStr() )
+            if(dateBefore.yyyy != dateFormatted.yyyy)//if it is  january so year changes
+            {
+              //println("it's january: " + dateFormatted.toStr())
+              valueJanuary = value
+            }
+            dateBefore = dateFormatted
+            drawdown = maxValue.value - value
+            drawdownPC = drawdown / maxValue.value
+            if(value>maxValue.value) // here is the new max!
+            {
+              maxValue.setValue(value)
+              maxDate.setValue(date)
+              drawdown = 0
+              drawdownPC = 0
+            }
+            else
+            {
+              if( drawdown > worstDrawdown.value )// here is the new shittest situation
+              {
+                worstDrawdown.setValue(drawdown)
+                worstDateDelta.setValue( maxDate.value + " --> " + date)
+                worstDrawdownPC.setValue( worstDrawdown.value / maxValue.value ) 
+              }
+            }
+            
+            var variationPC = ( (value - valueBefore) / value) * 100
+            var variationFromJanuary = ( (value - valueJanuary) / value) * 100
+            valueBefore = value
+            var datePrint = dateFormatted.dd + "/" + (dateFormatted.mm) + "/" + (dateFormatted.yyyy) 
+            var piece = datePrint + "," + value + ","  + maxValue.value + "," + variationPC + "," 
+            + variationFromJanuary  
+            newTextArray = newTextArray :+ piece
+        }
+     }
    })
    
    var newText = sc.parallelize(newTextArray)
@@ -97,8 +99,8 @@ class Preprocessor {
    
    //newText.saveAsTextFile(pathName)
    
-  // println( name.toUpperCase() + ": worst moment was: -" + (worstDrawdownPC.value*100) + " perCent; realized between the dates:  " 
-  //     + worstDateDelta.value)
+   println( name.toUpperCase() + ": worst moment was: -" + (worstDrawdownPC.value*100) + " perCent; realized between the dates:  " 
+       + worstDateDelta.value)
    return newText
   }  
     

@@ -2,6 +2,7 @@ package com.pack.spark
 
 
 import org.apache.spark.SparkConf
+import com.pack.reader._
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.rdd.PairRDDFunctions
 import java.util.Date
@@ -63,6 +64,7 @@ object MainAnalyzer {
     val parser = new Parsers with Serializable
     val preprocess = new Preprocessor with Serializable
     val singleETFAnalyzer = new SingleETFAnalyzer with Serializable
+    val reader = new Reader with Serializable
     
     //Start the Spark context
     val conf = new SparkConf()
@@ -71,7 +73,7 @@ object MainAnalyzer {
     val sc = new SparkContext(conf)
    
     var beginDate = parser.dateFormatter("2007-01-01", "yyyy-MM-dd" )
-    var endDate = parser.dateFormatter("2016-01-01" , "yyyy-MM-dd")
+    var endDate = parser.dateFormatter("2019-01-01" , "yyyy-MM-dd")
     
     var yearsLong = endDate.yyyy - beginDate.yyyy //how does it last?
     
@@ -93,21 +95,23 @@ object MainAnalyzer {
    
     //it returns a string: date, value, maxvalue, variationPC, variationPCfromJanaury
     //rdd1 is the daily one (let's cry)
-    var rdd1 = preprocess.preProcess( "src/main/resources/BorsaItalianaETFSP500EUR-hedged.csv" ,
-        "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
-        "Borsa Italiana SP500 EUR-hedged" , beginDate , endDate, parser, "MM/dd/yyyy" )
+    
+    var datasRDD1 = reader.readCsv( "src/main/resources/BorsaItalianaETFSP500EUR-hedged.csv" , sc )
+    var datasRDD2 = reader.readCsv( "src/main/resources/BondGlobalIta(BarclaysGlobalAggregateBond).csv" , sc )
+    
+    var rdd1 = preprocess.preProcess( parser.parseDouble("10000"), sc, 
+        "Borsa Italiana SP500 EUR-hedged" , beginDate , endDate, parser, "MM/dd/yyyy", datasRDD1 )
        
-    var rdd2 = preprocess.preProcess( "src/main/resources/BondGlobalIta(BarclaysGlobalAggregateBond).csv" ,
-        "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
-        "BOND Euro Hedged Global borsa italiana" , beginDate , endDate, parser, "yyyy-MM-dd" )
+    var rdd2 = preprocess.preProcess( parser.parseDouble("10000"), sc, 
+        "BOND Euro Hedged Global borsa italiana" , beginDate , endDate, parser, "yyyy-MM-dd", datasRDD2 )
           
     //printerPreprocessor( rdd1 ) //it is a string: date, value, maxvalue, variationPC
     
     //2-3-4)-----------------------------------------------------------------------------------------------
-       
+   
         
         
-    //SPARK WAY TO ANALYSE, SO PARALLELIZED!
+        //SPARK WAY TO ANALYSE, SO PARALLELIZED!
         
     // it give back an RDD: YearName(index), variationPC from janaury,drawdownPC AT THE MOMENT, for each month
     //, weight
@@ -116,7 +120,7 @@ object MainAnalyzer {
         "Borsa Italiana SP500 EUR-hedged" , beginDate , endDate, parser, "dd/MM/yyyy" ) 
         
     var mappedRDD2 = singleETFAnalyzer.mapperResult( rdd2 ,
-        "src/main/resources/output.txt", parser.parseDouble("20000"), sc, 
+        "src/main/resources/output.txt", parser.parseDouble("20"), sc, 
         "BOND Euro Hedged Global borsa italiana" , beginDate , endDate, parser, "dd/MM/yyyy" ) 
         
     //printerMapperFirst(mappedRDD2)//YearName(index), variationFromJanuary, drawdownPC AT THE MOMENT, for each month
