@@ -88,7 +88,6 @@ class Preprocessor {
             {
                variationPC = ( (value - valueBefore) / valueBefore) * 100
             }
-            println("VJ: " + valueJanuary)
             if( valueJanuary != 0 )
             {
               variationFromJanuary = ( (value - valueJanuary) / valueJanuary) * 100

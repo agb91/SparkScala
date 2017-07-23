@@ -64,7 +64,6 @@ class SingleETFAnalyzer() {
         val date = variable.array(0)
         val df = parserSent.dateFormatter(date, dateFormat)
         var _capital = capital
-        
         if( df.before( endDate.dd, endDate.mm, endDate.yyyy ) 
             && df.after( beginDate.dd, beginDate.mm, beginDate.yyyy ) )
         {
@@ -79,7 +78,7 @@ class SingleETFAnalyzer() {
           tuple(1) = variationFromJanuaryWeighted
           tuple(2) = drawdownPCWeighted
           tuple(3) = _capital
-          tuple(4) = 1
+          tuple(4) = 1.0
           //println(tuple(1))
           ( (df.yyyy + "-" + df.mm) , tuple)
           
@@ -87,9 +86,11 @@ class SingleETFAnalyzer() {
         else
         {
           var tuple = new Array[Double](5)
-          tuple(0) = 1
-          tuple(1) = 1
-          tuple(2) = 1
+          tuple(0) = 1.0
+          tuple(1) = 1.0
+          tuple(2) = 1.0
+          tuple(3) = 1.0
+          tuple(4) = 1.0
           ("discarded" , tuple)
         }
       } )
