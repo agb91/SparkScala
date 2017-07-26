@@ -33,7 +33,7 @@ class SingleETFAnalyzer() {
   
   //accumulate: variation, copy capital and find max of yearly drawdown (respect the previous max, no matter 
   //in which years this max is)
-  def accumulate (accumulator: Array[Double], toAdd: Array[Double]) : Array[Double] =
+  /*def accumulate (accumulator: Array[Double], toAdd: Array[Double]) : Array[Double] =
   {
     var result = Array[Double](0,0)
     result(0) = accumulator(0) + toAdd(0)
@@ -48,7 +48,7 @@ class SingleETFAnalyzer() {
     }
     result(1) = maxDD
     result
-  }
+  }*/
   
  // give back a RDD: YearName, variationPCFromJanuary, drawdown(instant, not need to comulate it) indexed by YEAR-NAME
   val mapperResult: (RDD[(String)],String,Double,SparkContext,String,MyDate,MyDate,Parsers,String) => 
@@ -97,11 +97,11 @@ class SingleETFAnalyzer() {
   }
   
   
-  val reducerResult = (mappedRDD : RDD[ (Int, Array[Double]) ]) => 
+  /*val reducerResult = (mappedRDD : RDD[ (Int, Array[Double]) ]) => 
   {
     var result = mappedRDD.reduceByKey( accumulate )  
     result
-  }
+  }*/
   
 
  

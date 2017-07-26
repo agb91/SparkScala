@@ -57,7 +57,8 @@ class Preprocessor {
         
         var drawdown = 0.0
         var drawdownPC = 0.0
-        if(dateBefore.mm != dateFormatted.mm ) // if it is a new month
+        
+        if(dateBefore.mm != dateFormatted.mm || beginDate.sameMonth(dateFormatted) ) // if it is a new month, or even if it is the exact begin date
         { 
           //println("take data: " + dateFormatted.toStr() )
             if(dateBefore.yyyy != dateFormatted.yyyy)//if it is  january so year changes

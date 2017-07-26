@@ -29,6 +29,8 @@ class GeneralTest extends FunSuite with SharedSparkContext {
   var singleETFAnalyzer: SingleETFAnalyzer = null
   var beginDate : MyDate = null
   var endDate : MyDate = null
+  var merger : MergerMultipleETF = null
+    
   
   
   def fixture() =
@@ -37,6 +39,8 @@ class GeneralTest extends FunSuite with SharedSparkContext {
      preprocess = new Preprocessor with Serializable
      singleETFAnalyzer = new SingleETFAnalyzer with Serializable
      reader = new Reader with Serializable
+     merger = new MergerMultipleETF with Serializable
+    
     
      beginDate = parser.dateFormatter("2007-01-01", "yyyy-MM-dd" )
      endDate = parser.dateFormatter("2016-01-01" , "yyyy-MM-dd")

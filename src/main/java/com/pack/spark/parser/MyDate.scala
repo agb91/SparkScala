@@ -6,6 +6,41 @@ class MyDate(_dd:Int, _mm:Int, _yyyy:Int ) extends Serializable{
   var mm: Int = _mm
   var yyyy: Int = _yyyy
   
+  def sameDate( ddCheck:Int, mmCheck:Int, yyyyCheck:Int ): Boolean =
+  {
+    if ( (this.dd == ddCheck) && (this.mm == mmCheck) && (this.yyyy == yyyyCheck)  )
+    {
+      return true
+    }
+    return false
+  }
+
+  def sameDate( other : MyDate ): Boolean =
+  {
+    if ( (this.dd == other.dd) && (this.mm == other.mm) && (this.yyyy == other.yyyy)  )
+    {
+      return true
+    }
+    return false
+  }
+  
+  def sameMonth( mmCheck:Int ): Boolean =
+  {
+    if ( this.mm == mmCheck )
+    {
+      return true
+    }
+    return false
+  }
+
+  def sameMonth( other : MyDate ): Boolean =
+  {
+    if ( this.mm == other.mm )
+    {
+      return true
+    }
+    return false
+  }
   
   //if THIS DATE is before PARAMETER DATE
   def before( ddCheck:Int, mmCheck:Int, yyyyCheck:Int ): Boolean =

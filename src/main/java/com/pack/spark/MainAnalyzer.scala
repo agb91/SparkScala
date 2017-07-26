@@ -154,7 +154,7 @@ object MainAnalyzer {
     //1 = totalVariationWeighted, 2 totalDrawdown weighted, 3 totalCApital
     var secondMapped = merger.secondMapperETF(reducedRDD)
     
-    printerMapper(secondMapped)//year->weightedVariation, weighted drawdown
+    //printerMapper(secondMapped)//year->weightedVariation, weighted drawdown
   
     //give back for each year variation of the year and capital at the moment
     /*var finalSum = merger.secondReducerETF(secondMapped)
