@@ -8,9 +8,19 @@ import java.util.Date
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import com.pack.spark.parser.Parsers
-import com.pack.spark.SingleETFAnalyzer
 
-class SingleETFAnalyzer() {
+class ConcatWeightMap234() {
+  
+  val mergerAll: ( Array[RDD[ (String, Array[Double] ) ]] ) => RDD[ ( String, Array[Double] ) ] =
+   (allMappedRDD : Array[RDD[ (String, Array[Double]) ]]) => 
+   {
+      var result = allMappedRDD(0).filter(f => !f._1.equalsIgnoreCase("discarded")  )
+      
+      for ( i <- 1 to (allMappedRDD.length - 1) ) {
+         result = result.union( allMappedRDD(i) ).filter(h => !h._1.equalsIgnoreCase("discarded") )
+      }
+      result
+   }  
   
   def percentDifference( old: Double, now: Double) : Double =
   {

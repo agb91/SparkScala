@@ -42,6 +42,24 @@ class MyDate(_dd:Int, _mm:Int, _yyyy:Int ) extends Serializable{
     return false
   }
   
+  def sameYear( yyCheck:Int ): Boolean =
+  {
+    if ( this.yyyy == yyCheck )
+    {
+      return true
+    }
+    return false
+  }
+
+  def sameYear( other : MyDate ): Boolean =
+  {
+    if ( this.yyyy == other.yyyy )
+    {
+      return true
+    }
+    return false
+  }
+  
   //if THIS DATE is before PARAMETER DATE
   def before( ddCheck:Int, mmCheck:Int, yyyyCheck:Int ): Boolean =
   {

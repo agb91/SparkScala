@@ -58,9 +58,9 @@ class Preprocessor {
         var drawdown = 0.0
         var drawdownPC = 0.0
         
-        if(dateBefore.mm != dateFormatted.mm || beginDate.sameMonth(dateFormatted) ) // if it is a new month, or even if it is the exact begin date
+        if(dateBefore.mm != dateFormatted.mm || ( beginDate.sameMonth(dateFormatted) && beginDate.sameYear(dateFormatted))  ) // if it is a new month, or even if it is the exact begin date
         { 
-          //println("take data: " + dateFormatted.toStr() )
+            //println("take data: " + dateFormatted.toStr() )
             if(dateBefore.yyyy != dateFormatted.yyyy)//if it is  january so year changes
             {
               //println("it's january: " + dateFormatted.toStr())
@@ -96,7 +96,8 @@ class Preprocessor {
             //println("VfromJ: " + variationFromJanuary)
             
             valueBefore = value
-            var datePrint = dateFormatted.dd + "/" + (dateFormatted.mm) + "/" + (dateFormatted.yyyy) 
+            var datePrint = dateFormatted.dd + "/" + (dateFormatted.mm) + "/" + (dateFormatted.yyyy)
+            // IN SCALA YOU MUSTN'T SPLIT THE FOLLOWING LINE INTO TWO! DON'T PRESS ENTER
             var piece = datePrint + "," + value + ","  + maxValue.value + "," + variationPC + "," + variationFromJanuary  
             newTextArray = newTextArray :+ piece
         }
