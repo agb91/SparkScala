@@ -36,7 +36,7 @@ class Preprocessor {
    var worstDrawdown = sc.accumulator(0.0)
    var worstDrawdownPC = sc.accumulator(0.0)
    var worstDateDelta = sc.accumulator("")(StringAccumulatorParam) // two dates, the one of the max and the one of the worst
-   var dateBefore = beginDate;
+   var dateBefore = new MyDate(1,1,1)
    var newTextArray = Array[String]()
    var valueJanuary = 0.0
    var variationFromJanuary = 0.0
@@ -58,9 +58,10 @@ class Preprocessor {
         var drawdown = 0.0
         var drawdownPC = 0.0
         
-        if(dateBefore.mm != dateFormatted.mm || ( beginDate.sameMonth(dateFormatted) && beginDate.sameYear(dateFormatted))  ) // if it is a new month, or even if it is the exact begin date
+        //take the data iff: it is a new month or ( it is the beginning year ) or (dateBefore not exists)
+        
+        if( dateBefore.yyyy == 1 || dateBefore.mm != dateFormatted.mm || ( beginDate.sameMonth(dateFormatted) && beginDate.sameYear(dateFormatted))  ) // if it is a new month, or even if it is the exact begin date
         { 
-            //println("take data: " + dateFormatted.toStr() )
             if(dateBefore.yyyy != dateFormatted.yyyy)//if it is  january so year changes
             {
               //println("it's january: " + dateFormatted.toStr())

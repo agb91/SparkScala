@@ -1,8 +1,8 @@
 package com.pack.spark
 
-class MergerTest  extends GeneralTest {
+class Mapper678Test  extends GeneralTest {
   
- 
+ /*
   
   
   
@@ -60,6 +60,6 @@ class MergerTest  extends GeneralTest {
        assert( finalSum.collect()(1)._1.equalsIgnoreCase( "2008" ) )
        assert( finalSum.collect()(2)._1.equalsIgnoreCase( "2009" ) )
   }
-  
+  */
   
 }
