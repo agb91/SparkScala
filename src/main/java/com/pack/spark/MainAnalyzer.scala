@@ -69,6 +69,10 @@ object MainAnalyzer {
     val mapper678 = new Mapper678 with Serializable
     val reducer5 = new Reducer5 with Serializable
     
+    var bw = 20000.0
+    var sw = 20000.0
+    var tw = bw + sw
+    
     //Start the Spark context
     val conf = new SparkConf()
       .setAppName("MainAnalyzer")
@@ -76,7 +80,7 @@ object MainAnalyzer {
     val sc = new SparkContext(conf)
    
     var beginDate = parser.dateFormatter("2007-01-01", "yyyy-MM-dd" )
-    var endDate = parser.dateFormatter("2019-01-01" , "yyyy-MM-dd")
+    var endDate = parser.dateFormatter("2009-01-01" , "yyyy-MM-dd")
     
     var yearsLong = endDate.yyyy - beginDate.yyyy //how does it last?
     // 1 -> 234 -> 5 -> 678
@@ -88,8 +92,7 @@ object MainAnalyzer {
     *4) il primo parallelo MAP prepara un vettore meseAnno-> variazione ,1, DD, peso
     *5) in primo parallelo REDUCE mergia i diversi prodotti con lo stesso mese-anno sommando variazioni PESATE
     * (somma quelle con lo stesso anno e mese di due prodotti diversi NON quelle cumulate di più prodotti....)
-        e ha un contatore che trova il loro numero{sommapesi} [è ovvio? NO perchè magari un prodotto quella parte di
-          tempo non ce l''ha!!!]
+       
     *6) il secondo parallelo MAP divide la variazione per il numero dei prodotti{sommapesi} NO REDUCE SUBITO
     *7) il terzo parallelo MAP tiene solo dicembre come mese con variazione da inizio anno e DD di dicembre 
     8 ) seriale con le ottenute variazioni calcola il capitale alla fine
@@ -104,10 +107,10 @@ object MainAnalyzer {
     var datasRDD1 = reader.readCsv( "src/main/resources/BorsaItalianaETFSP500EUR-hedged.csv" , sc )
     var datasRDD2 = reader.readCsv( "src/main/resources/BondGlobalIta(BarclaysGlobalAggregateBond).csv" , sc )
     
-    var rdd1 = preprocess.preProcess( parser.parseDouble("10000"), sc, 
+    var rdd1 = preprocess.preProcess( sw , sc, 
         "Borsa Italiana SP500 EUR-hedged" , beginDate , endDate, parser, "MM/dd/yyyy", datasRDD1 )
        
-    var rdd2 = preprocess.preProcess( parser.parseDouble("10000"), sc, 
+    var rdd2 = preprocess.preProcess( bw, sc, 
         "BOND Euro Hedged Global borsa italiana" , beginDate , endDate, parser, "yyyy-MM-dd", datasRDD2 )
           
     //printerPreprocessor( rdd1 ) //it is a string: date, value, maxvalue, variationPC
@@ -121,12 +124,12 @@ object MainAnalyzer {
     // it give back an RDD: YearName(index), variationPC from janaury,drawdownPC AT THE MOMENT, for each month
     //, weight
     var mappedRDD1 = concatWeightMap234.mapperResult( rdd1 ,
-        "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
-        "Borsa Italiana SP500 EUR-hedged" , beginDate , endDate, parser, "dd/MM/yyyy" ) 
+        "src/main/resources/output.txt", sw, sc, 
+        "Borsa Italiana SP500 EUR-hedged" , beginDate , endDate, parser, "dd/MM/yyyy", tw ) 
         
     var mappedRDD2 = concatWeightMap234.mapperResult( rdd2 ,
-        "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
-        "BOND Euro Hedged Global borsa italiana" , beginDate , endDate, parser, "dd/MM/yyyy" ) 
+        "src/main/resources/output.txt", bw, sc, 
+        "BOND Euro Hedged Global borsa italiana" , beginDate , endDate, parser, "dd/MM/yyyy" , tw) 
         
     //printerMapperFirst(mappedRDD2)//YearName(index), variationFromJanuary, drawdownPC AT THE MOMENT, for each month
       //, weight
@@ -135,7 +138,6 @@ object MainAnalyzer {
     
     var merged = concatWeightMap234.mergerAll( arrayMapped )     
     
-    //printerMapperFirst(merged)//Year-month(index), variationFromJanuary, capital, drawdownPC AT THE MOMENT, for each month, MERGED
     
     
     
@@ -152,25 +154,24 @@ object MainAnalyzer {
     //printerReduced5(reducedRDD)//YearMonmth(index), cumulative variation, capital now, worst drawdownPC
    
     //6-7-8)-----------------------------------------------------------------------------------------------
-    NON HO TESTATO L'8 MA IL RESTO SEMBRA AVERE SENSO
     
     //1 = totalVariationWeighted, 2 totalDrawdown weighted, 3 totalCApital
-    var secondMapped = mapper678.secondMapperETF(reducedRDD)
+    var secondMapped = mapper678.secondMapperETF(reducedRDD, parser ,tw)
     
-    printerMapper(secondMapped)//year->weightedVariation, weighted drawdown
+    //printerMapper(secondMapped)//year->weightedVariation, weighted drawdown
   
+    //here enter year-> variation PC, DD PC, year [to find first and last year] find 
+    //worst DD and update capital with variations
     //give back for each year variation of the year and capital at the moment
     var finalSum = mapper678.secondReducerETF(secondMapped)
-    /*finalSum.foreach(f => 
+    
+      
+    finalSum.foreach(f => 
         {
-          if(f._1.equalsIgnoreCase( endDate.yyyy.toString() ) || f._1.equalsIgnoreCase( "2017" ) )
-          {
-            
-            println("id:" + f._1 + "average yield per year: " + (( f._2(1) / (100  *arrayMapped.length) )/yearsLong) 
-                + "% ; final capital : " + f._2(1)  )
-          }
+            println("final:    		id: " + f._1 + "; average yield per year: " + ( f._2(0) / ( f._2(3) - f._2(2) ) ) 
+                + "% ; worstDD : " + f._2(1) + "first year: " + f._2(2) + "; last year: " + f._2(3) )
         } )
-      */
+      
     sc.stop 
   }
 }

@@ -19,7 +19,7 @@ class MergerTest  extends GeneralTest {
        var arrayMapped = Array( mappedRDD1 , mappedRDD1 )      
        var merged = concatWeightMap234.mergerAll( arrayMapped )     
        var reducedRDD = reducer5.reducerETFMerged( merged )
-       var secondMapped = mapper678.secondMapperETF(reducedRDD)
+       var secondMapped = mapper678.secondMapperETF(reducedRDD , parser)
        var discarded = 0
        var accepted = 0
        secondMapped.collect().foreach( f =>
@@ -52,7 +52,7 @@ class MergerTest  extends GeneralTest {
        var arrayMapped = Array( mappedRDD1 , mappedRDD1 )      
        var merged = concatWeightMap234.mergerAll( arrayMapped )     
        var reducedRDD = reducer5.reducerETFMerged( merged )
-       var secondMapped = mapper678.secondMapperETF(reducedRDD)
+       var secondMapped = mapper678.secondMapperETF(reducedRDD, parser)
        var finalSum = mapper678.secondReducerETF(secondMapped) // collassa per anno
        
        assert( finalSum.collect().length == 3 )  

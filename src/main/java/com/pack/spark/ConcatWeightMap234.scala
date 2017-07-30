@@ -41,30 +41,11 @@ class ConcatWeightMap234() {
     result
   }
   
-  //accumulate: variation, copy capital and find max of yearly drawdown (respect the previous max, no matter 
-  //in which years this max is)
-  /*def accumulate (accumulator: Array[Double], toAdd: Array[Double]) : Array[Double] =
-  {
-    var result = Array[Double](0,0)
-    result(0) = accumulator(0) + toAdd(0)
-    var maxDD = 0.0;
-    if( toAdd(1) > accumulator(1) )
-    {
-      maxDD = toAdd(1)
-    }
-    else
-    {
-      maxDD = accumulator(1)
-    }
-    result(1) = maxDD
-    result
-  }*/
-  
  // give back a RDD: YearName, variationPCFromJanuary, drawdown(instant, not need to comulate it) indexed by YEAR-NAME
-  val mapperResult: (RDD[(String)],String,Double,SparkContext,String,MyDate,MyDate,Parsers,String) => 
+  val mapperResult: (RDD[(String)],String,Double,SparkContext,String,MyDate,MyDate,Parsers,String,Double) => 
     RDD[(String, Array[Double])] = 
     ( input: RDD[(String)] , output: String, capital: Double, sc: SparkContext, name: String, 
-      beginDate: MyDate, endDate: MyDate, parserSent: Parsers, dateFormat: String) => 
+      beginDate: MyDate, endDate: MyDate, parserSent: Parsers, dateFormat: String, tw : Double) => 
   {
     val test = input
     //datePrint + "," + value + ","  + maxValue.value + "," + variationPC + "," + variationFromJanuary  
@@ -87,7 +68,7 @@ class ConcatWeightMap234() {
           tuple(0) = value
           tuple(1) = variationFromJanuaryWeighted
           tuple(2) = drawdownPCWeighted
-          tuple(3) = _capital
+          tuple(3) = tw //the total value of the various products..
           tuple(4) = 1.0
           //println(tuple(1))
           ( (df.yyyy + "-" + df.mm) , tuple)

@@ -8,10 +8,10 @@ class Reducer5Test  extends GeneralTest {
        var rddReader1 = reader.readCsv( "src/test/resources/basic.csv" , sc )
        var rdd1 = preprocess.preProcess( parser.parseDouble("10000"), sc, 
             "M1" , beginDate , endDate, parser, 
-            "dd/mm/yyyy", rddReader1 )
+            "dd/mm/yyyy", rddReader1  )
         var mappedRDD1 = concatWeightMap234.mapperResult( rdd1 ,
             "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
-            "M1" , beginDate , endDate, parser, "dd/MM/yyyy" ) 
+            "M1" , beginDate , endDate, parser, "dd/MM/yyyy" , 10000) 
         var reducedRDD = reducer5.reducerETFMerged(mappedRDD1)
         assert( reducedRDD.collect().length == 6 )
         

@@ -14,7 +14,7 @@ class FirstAnalysisTest extends GeneralTest {
     //, weight
     var mappedRDD1 = concatWeightMap234.mapperResult( rdd1 ,
         "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
-        "Borsa Italiana SP500 EUR-hedged" , beginDate , endDate, parser, "dd/MM/yyyy" ) 
+        "Borsa Italiana SP500 EUR-hedged" , beginDate , endDate, parser, "dd/MM/yyyy", 10000 ) 
    
     assert( mappedRDD1.collect().length == 7 )
     assert( mappedRDD1.collect()(6)._1.equalsIgnoreCase("discarded") )
@@ -72,11 +72,11 @@ class FirstAnalysisTest extends GeneralTest {
     //, weight
     var mappedRDD1 = concatWeightMap234.mapperResult( rdd1 ,
         "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
-        "M1" , beginDate , endDate, parser, "dd/MM/yyyy" ) 
+        "M1" , beginDate , endDate, parser, "dd/MM/yyyy" , 20000 ) 
         
     var mappedRDD2 = concatWeightMap234.mapperResult( rdd2 ,
         "src/main/resources/output.txt", parser.parseDouble("10000"), sc, 
-        "M1" , beginDate , endDate, parser, "dd/MM/yyyy" )    
+        "M1" , beginDate , endDate, parser, "dd/MM/yyyy" , 20000)    
         
         
         
