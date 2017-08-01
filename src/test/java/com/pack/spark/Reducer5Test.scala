@@ -1,7 +1,7 @@
 package com.pack.spark
 
 class Reducer5Test  extends GeneralTest {
-  RICONTROLLA TESTS DA QUI
+
   test( "reducer" )
   {
        fixture()
