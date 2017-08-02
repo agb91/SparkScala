@@ -6,19 +6,29 @@ import java.util.Calendar
 class Parsers {
   
   def parseDouble(expectedNumber: Any): Double = 
-    try{
-      expectedNumber match {
-        case s: String => s.toDouble
-        case i: Int => i.toDouble
-        case l: Long => l.toDouble
-        case d: Double => d
+  {
+    if ( expectedNumber == null )
+    {
+      parseDouble(0.0)
+    }
+    
+    else
+    {
+      try{
+        expectedNumber match {
+          case s: String => s.toDouble
+          case i: Int => i.toDouble
+          case l: Long => l.toDouble
+          case d: Double => d
+        }
+      }
+      catch
+      {
+        case _ => parseDouble(0.0)
       }
     }
-    catch
-    {
-      case _ => parseDouble(0.0)
-    }
-
+    
+}
     
      
   def dateFormatter (str: String , format: String) : MyDate =

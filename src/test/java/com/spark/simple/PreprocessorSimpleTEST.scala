@@ -1,8 +1,8 @@
 package com.spark.simple
 
-import com.spark.simple.GeneralTestSimple
+import com.spark.simple.GeneralTestS
 
-class PreprocessorSimpleTEST  extends GeneralTestSimple {
+class PreprocessorSimpleTEST  extends GeneralTestS {
   
    test("reader") {
      fixture()
