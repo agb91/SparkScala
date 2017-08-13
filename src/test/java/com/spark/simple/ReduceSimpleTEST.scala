@@ -4,7 +4,7 @@ import com.spark.simple.GeneralTestS
 
 class ReduceSimpleTEST  extends GeneralTestS {
   
-  
+  /*
   test("Mapper") {
      
     fixture()
@@ -27,6 +27,6 @@ class ReduceSimpleTEST  extends GeneralTestS {
     
     
   } 
- 
+ */
   
 }

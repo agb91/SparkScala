@@ -8,7 +8,7 @@ import com.pack.spark.parser.MyDate
 
 class PreprocessorSimple {
     
-  def preProcess( capital: Double, sc: SparkContext, name: String, 
+  def preProcess( sc: SparkContext, name: String, 
       beginDate: MyDate, endDate: MyDate, parserSent: Parsers, dateFormat: String, datas: RDD[(String)] ) 
   : RDD[(String)] =
   {
@@ -68,7 +68,7 @@ class PreprocessorSimple {
             valueBefore = value
             var datePrint =  (dateFormatted.mm) + "/" + (dateFormatted.yyyy)
             // IN SCALA YOU MUSTN'T SPLIT THE FOLLOWING LINE INTO TWO! DON'T PRESS ENTER
-            var piece = datePrint + "," + value + "," + variationPC + "," + worstDrawdownPC + "," + worstDateDelta
+            var piece = name + "-" +datePrint + "," + value + "," + variationPC + "," + worstDrawdownPC + "," + worstDateDelta
             list = list :+ piece
         }
      }

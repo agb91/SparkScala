@@ -1,6 +1,7 @@
 package com.spark.simple
 
 import collection.mutable.Stack
+import com.pack.simpler.MagicWeight
 
 import com.pack.reader._
 import org.scalatest._
@@ -30,6 +31,7 @@ class GeneralTestS extends FunSuite with SharedSparkContext {
   var reader: Reader = null
   var beginDate : MyDate = null
   var endDate : MyDate = null
+  var old: MagicWeight = null
   
   
   def fixture() =
@@ -43,6 +45,7 @@ class GeneralTestS extends FunSuite with SharedSparkContext {
      beginDate = parser.dateFormatter("2007-01-01", "yyyy-MM-dd" )
      endDate = parser.dateFormatter("2016-01-01" , "yyyy-MM-dd")
      
+     var old = new MagicWeight with Serializable
   }
     
   
