@@ -69,7 +69,7 @@ object MainAnalyzer {
     w.weights(0) = 5000.0
     w.weights(1) = 5000.0
    
-    do
+    /*do
     {
         var mapped = mapper.mapper( rddT, parser, w , beginDate.yyyy, endDate.yyyy )
         var reduced = reducer.reduce( mapped )
@@ -93,7 +93,7 @@ object MainAnalyzer {
           w.weights(1) =  reducedArray(8).asInstanceOf[MagicWeight].weights(1)
         }
     }while(false)
-      
+      */
    sc.stop 
   }
 }

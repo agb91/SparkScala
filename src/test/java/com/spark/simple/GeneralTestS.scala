@@ -1,6 +1,7 @@
 package com.spark.simple
 
 import collection.mutable.Stack
+import com.pack.simpler.Concat
 import com.pack.simpler.MagicWeight
 
 import com.pack.reader._
@@ -29,6 +30,7 @@ class GeneralTestS extends FunSuite with SharedSparkContext {
   var mapper : MapperSimple = null 
   var reducer : ReducerSimple = null
   var reader: Reader = null
+  var concat: Concat = null 
   var beginDate : MyDate = null
   var endDate : MyDate = null
   var old: MagicWeight = null
@@ -41,6 +43,7 @@ class GeneralTestS extends FunSuite with SharedSparkContext {
      reader = new Reader with Serializable
      mapper = new MapperSimple with Serializable
      reducer = new ReducerSimple with Serializable
+     concat = new Concat with Serializable
     
      beginDate = parser.dateFormatter("2007-01-01", "yyyy-MM-dd" )
      endDate = parser.dateFormatter("2016-01-01" , "yyyy-MM-dd")

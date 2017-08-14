@@ -43,7 +43,7 @@ class PreprocessorSimple {
         { 
             dateBefore = dateFormatted
             drawdown = maxValue - value
-            drawdownPC = drawdown / maxValue
+            drawdownPC = drawdown / maxValue * 100
             if(value>maxValue) // here is the new max!
             {
               maxValue = value 
@@ -57,7 +57,7 @@ class PreprocessorSimple {
               {
                 worstDrawdown = drawdown
                 worstDateDelta = maxDate.toStr() + " --> " + dateFormatted.toStr()
-                worstDrawdownPC = worstDrawdown / maxValue 
+                worstDrawdownPC = worstDrawdown / maxValue * 100
               }
             }
             if( valueBefore != 0.0 )
