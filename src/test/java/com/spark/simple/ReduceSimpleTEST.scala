@@ -36,10 +36,11 @@ class ReduceSimpleTEST  extends GeneralTestS {
     var rddMapper2 = mapper.mapper( rddProcessed , parser, MW2 , 2000 , 2100 )
     var rddMapper3 = mapper.mapper( rddProcessed , parser, MW3 , 2000 , 2100 )
     
-    
+    //variation totalPC, worsDDPC, vote
     var reduced1 = reducer.reduce( rddMapper1 )
     var reduced2 = reducer.reduce( rddMapper2 )
     var reduced3 = reducer.reduce( rddMapper3 )
+    
     
     assert( reduced1.collect()(1)._1.equalsIgnoreCase( "accepted-5000.0-5000.0" ) )
     assert( reduced2.collect()(1)._1.equalsIgnoreCase( "accepted-1000.0-9000.0" ) )

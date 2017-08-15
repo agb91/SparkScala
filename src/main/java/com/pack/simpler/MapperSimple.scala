@@ -12,6 +12,22 @@ import scala.math.ceil
 class MapperSimple {
   
   val r = scala.util.Random  
+  
+  def getListMW( old : MagicWeight ) : Array[MagicWeight] =
+  {
+    var result = new Array[MagicWeight](3)
+    var a = 0
+    for( a <-0 to 2){
+    
+      var n1 = r.nextInt( 3000 )
+      var n2 = r.nextInt( 3000 )
+      var toAdd = getMagicWeight( old , n1 , n2 )
+      result(a) = toAdd
+    }
+    
+    result
+    
+  }
         
   def getMagicWeight( old : MagicWeight, n1: Int, n2: Int ) : MagicWeight with Serializable =
   {

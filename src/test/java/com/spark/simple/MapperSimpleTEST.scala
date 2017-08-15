@@ -6,7 +6,20 @@ import com.pack.simpler.MagicWeight
 
 class MapperSimpleTEST extends GeneralTestS{
   
-  test("methods") 
+  test("multiple MW")
+  {
+    fixture()
+    old = new MagicWeight with Serializable
+    
+    old.weights(0) = 5000
+    old.weights(1) = 5000
+    
+    var result = mapper.getListMW( old : MagicWeight )
+    assert( result.length == 3 )
+    assert( ( result(1).weights(0) > (old.weights(0) - 3000)  ) || ( result(1).weights(0) < (old.weights(0) + 3000)  ) )
+  }
+  
+  test("One MW") 
   {
     fixture()
     

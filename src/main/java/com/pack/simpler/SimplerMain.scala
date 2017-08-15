@@ -20,11 +20,10 @@ object MainAnalyzer {
     
     do
     
-  	2) map peso per i vari prodotti variazione e DD, scarto quelli fuori dal range di tempo. to a ogni tipo 
-  	//un peso prima casuale e dopo influenzato dal migliore, diviso in 3 versioni per ogni map, reduce poi
-  	 * mi voterà la migliore
+  	2) map peso per i vari prodotti variazione e DD, scarto quelli fuori dal range di tempo. 
+  	ogni map riceve il peso da fuori
   
-  	3) reduce prendo variazione totale e DD peggiore, 
+  	3) reduce prendo variazione totale e DD peggiore,  e calcolo voto
   	
   	while reduce mi dice che i pesi sono buoni
   * */
@@ -58,42 +57,44 @@ object MainAnalyzer {
         "stock" , beginDate , endDate, parser, "MM/dd/yyyy", datasRDD1 )
     
     var rdd2 = preprocess.preProcess( sc, 
-        "bond" , beginDate , endDate, parser, "MM/dd/yyyy", datasRDD1 )
+        "bond" , beginDate , endDate, parser, "yyyy-mm-dd", datasRDD2 )
         
     var arrayToMerge = new Array[RDD[ (String) ]](2)
     arrayToMerge(0) = rdd1
     arrayToMerge(1) = rdd2
     var rddT = concat.mergerAll( arrayToMerge )    
         
-    var w = new MagicWeight()
+    
+    
+    var w = new MagicWeight() //seed
     w.weights(0) = 5000.0
     w.weights(1) = 5000.0
    
-    /*do
+    var voteMax = 0.0
+    var best : MagicWeight = w
+    var continue : Boolean = true
+    do
     {
-        var mapped = mapper.mapper( rddT, parser, w , beginDate.yyyy, endDate.yyyy )
-        var reduced = reducer.reduce( mapped )
-        var reducedArray = reduced.collect()(0)._2
-        var vote1 = parser.parseDouble( reducedArray(0) ) - parser.parseDouble( reducedArray(1) )
-        var vote2 = parser.parseDouble( reducedArray(3) ) - parser.parseDouble( reducedArray(4) )
-        var vote3 = parser.parseDouble( reducedArray(6) ) - parser.parseDouble( reducedArray(7) )
-        if(vote1 > vote2 && vote1 > vote3)
-        {
-          w.weights(0) =  reducedArray(2).asInstanceOf[MagicWeight].weights(0)
-          w.weights(1) =  reducedArray(2).asInstanceOf[MagicWeight].weights(1)
+        var listMW = mapper.getListMW( best )
+        for ( mw : MagicWeight <- listMW ) { 
+          var mapped = mapper.mapper( rddT, parser, mw , beginDate.yyyy, endDate.yyyy )
+          var reduced = reducer.reduce( mapped )
+          var reducedArray = reduced.collect()(0)._2
+          var vote = reducedArray(2)
+          if( vote > voteMax )
+          {
+            voteMax = vote
+            best = mw
+          }
+          if(voteMax > 80)
+          {
+            continue = false
+          }
+          println("vote max: " + voteMax + ";  for mw: " + best.toStr() )
         }
-        if(vote2 > vote1 && vote2 > vote3)
-        {
-          w.weights(0) =  reducedArray(5).asInstanceOf[MagicWeight].weights(0)
-          w.weights(1) =  reducedArray(5).asInstanceOf[MagicWeight].weights(1) 
-        }
-        if(vote3 > vote1 && vote3 > vote2)
-        {
-          w.weights(0) =  reducedArray(8).asInstanceOf[MagicWeight].weights(0) 
-          w.weights(1) =  reducedArray(8).asInstanceOf[MagicWeight].weights(1)
-        }
-    }while(false)
-      */
+        
+    }while( continue )
+      
    sc.stop 
   }
 }

@@ -37,6 +37,8 @@ class ReducerSimple {
     return result
   }
   
+  
+  //variation totalPC, worsDDPC, vote
    val reduce: ( RDD[ (String, Array[Double] ) ]) => ( RDD[ (String, Array[Double] ) ]) =
      (mappedRDD : RDD[ (String, Array[Double]) ]) => {
        
