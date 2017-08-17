@@ -12,10 +12,10 @@ class ReduceSimpleTEST  extends GeneralTestS {
     
           
     var rdd1 = reader.readCsv( "src/test/resources/simpleReducerS.csv" , sc )
-    var rddProcessed1 = preprocess.preProcess( sc, "stock", beginDate, endDate, parser, "dd/mm/yyyy", rdd1 ) 
+    var rddProcessed1 = preprocess.preProcess( sc, "stock", beginDate, endDate, parser, "dd/mm/yyyy", rdd1, 2000 , 2100 ) 
     
     var rdd2 = reader.readCsv( "src/test/resources/simpleReducerB.csv" , sc )
-    var rddProcessed2 = preprocess.preProcess( sc, "bond", beginDate, endDate, parser, "dd/mm/yyyy", rdd2 ) 
+    var rddProcessed2 = preprocess.preProcess( sc, "bond", beginDate, endDate, parser, "dd/mm/yyyy", rdd2, 2000 , 2100 ) 
     
     var arrayRDD = Array( rddProcessed1 , rddProcessed2 )
     
@@ -32,9 +32,11 @@ class ReduceSimpleTEST  extends GeneralTestS {
     MW3.weights(1) = 1000
     
     
-    var rddMapper1 = mapper.mapper( rddProcessed , parser, MW1 , 2000 , 2100 )
-    var rddMapper2 = mapper.mapper( rddProcessed , parser, MW2 , 2000 , 2100 )
-    var rddMapper3 = mapper.mapper( rddProcessed , parser, MW3 , 2000 , 2100 )
+    var rddMapper1 = mapper.mapper( rddProcessed , parser, MW1 )
+    var rddMapper2 = mapper.mapper( rddProcessed , parser, MW2 )
+    var rddMapper3 = mapper.mapper( rddProcessed , parser, MW3 )
+    
+    println("mapper:--->  " + rddMapper1.collect().mkString("--"))
     
     //variation totalPC, worsDDPC, vote
     var reduced1 = reducer.reduce( rddMapper1 )
@@ -42,16 +44,16 @@ class ReduceSimpleTEST  extends GeneralTestS {
     var reduced3 = reducer.reduce( rddMapper3 )
     
     
-    assert( reduced1.collect()(1)._1.equalsIgnoreCase( "accepted-5000.0-5000.0" ) )
-    assert( reduced2.collect()(1)._1.equalsIgnoreCase( "accepted-1000.0-9000.0" ) )
-    assert( reduced3.collect()(1)._1.equalsIgnoreCase( "accepted-9000.0-1000.0" ) )
+    assert( reduced1.collect()(0)._1.equalsIgnoreCase( "accepted-5000.0-5000.0" ) )
+    assert( reduced2.collect()(0)._1.equalsIgnoreCase( "accepted-1000.0-9000.0" ) )
+    assert( reduced3.collect()(0)._1.equalsIgnoreCase( "accepted-9000.0-1000.0" ) )
     
-    assert( reduced3.collect()(1)._2(0)  > reduced1.collect()(1)._2(0) )
-    assert( reduced3.collect()(1)._2(0)  > reduced2.collect()(1)._2(0) )
+    assert( reduced3.collect()(0)._2(0)  > reduced1.collect()(0)._2(0) )
+    assert( reduced3.collect()(0)._2(0)  > reduced2.collect()(0)._2(0) )
     
     
-    assert( reduced3.collect()(1)._2(1)  > reduced1.collect()(1)._2(1) )
-    assert( reduced3.collect()(1)._2(1)  > reduced2.collect()(1)._2(1) )
+    assert( reduced3.collect()(0)._2(1)  > reduced1.collect()(0)._2(1) )
+    assert( reduced3.collect()(0)._2(1)  > reduced2.collect()(0)._2(1) )
     
     
     

@@ -9,13 +9,15 @@ class GlobalTest extends GeneralTestS{
   test("all the processs")
   {
       fixture()
-      var goal = 30 //the grade to reach
+      var goal = 10.09 //the grade to reach
             
       var rdd1 = reader.readCsv( "src/test/resources/simpleReducerS.csv" , sc )
-      var rddProcessed1 = preprocess.preProcess( sc, "stock", beginDate, endDate, parser, "dd/mm/yyyy", rdd1 ) 
+      var rddProcessed1 = preprocess.preProcess( sc, "stock", beginDate, endDate, parser, "dd/mm/yyyy", rdd1,
+          beginDate.yyyy , endDate.yyyy) 
       
       var rdd2 = reader.readCsv( "src/test/resources/simpleReducerB.csv" , sc )
-      var rddProcessed2 = preprocess.preProcess( sc, "bond", beginDate, endDate, parser, "dd/mm/yyyy", rdd2 ) 
+      var rddProcessed2 = preprocess.preProcess( sc, "bond", beginDate, endDate, parser, "dd/mm/yyyy", rdd2,
+          beginDate.yyyy , endDate.yyyy ) 
       
       var arrayRDD = Array( rddProcessed1 , rddProcessed2 )
       
@@ -32,7 +34,7 @@ class GlobalTest extends GeneralTestS{
       {
           var listMW = mapper.getListMW( best )
           for ( mw : MagicWeight <- listMW ) { 
-            var mapped = mapper.mapper( rddT, parser, mw , 2000, 2100 )
+            var mapped = mapper.mapper( rddT, parser, mw )
             var reduced = reducer.reduce( mapped )
             var reducedArray = reduced.collect()(0)._2
             var vote = reducedArray(2)

@@ -36,13 +36,17 @@ class MapperSimple {
     var result = new MagicWeight() with Serializable
 
     result.weights(0) = ( old.weights(0) + n1 - n2 )
+    if( result.weights(0) < 0 )
+    {
+      result.weights(0) = 0
+    }
     result.weights(1) = ( tw - result.weights(0) )
     
     return result
   }
   
-    val mapper: ( RDD[ (String) ], Parsers,  MagicWeight , Int, Int ) => RDD[ (String, Array[Double]) ] =
-   ( input: RDD[ (String) ] , parser : Parsers, magicWeight : MagicWeight, yearBegin : Int , yearEnd : Int) =>
+    val mapper: ( RDD[ (String) ], Parsers,  MagicWeight) => RDD[ (String, Array[Double]) ] =
+   ( input: RDD[ (String) ] , parser : Parsers, magicWeight : MagicWeight) =>
   {
     var p0 = magicWeight.weights(0)
     var p1 = magicWeight.weights(1)
@@ -73,24 +77,12 @@ class MapperSimple {
           variationW1 = ( parser.parseDouble( lineSplitted(2) ) * magicWeight.weights(1) ) / magicWeight.getTotal()
           worstDDW1 = ( parser.parseDouble( lineSplitted(3) ) * magicWeight.weights(1) ) / magicWeight.getTotal()
         }
-          
         
-        if( parser.parseDouble( dateYear ) >= yearBegin && parser.parseDouble( dateYear ) <= yearEnd  )
-        {
-          
-          var tuple = new Array[Double](2)
-          tuple(0) = variationW1
-          tuple(1) = worstDDW1
-          ( "accepted-" + p0 + "-" + p1 , tuple )
-        }
-        else
-        {
-          var tuple = new Array[Double](2)
-          tuple(0) = -1.0
-          tuple(1) = -1.0
-          ( "out" , tuple )
-        }
-        
+        var tuple = new Array[Double](2)
+        tuple(0) = variationW1
+        tuple(1) = worstDDW1
+        ( "accepted-" + p0 + "-" + p1 , tuple )
+      
       })
       
       result

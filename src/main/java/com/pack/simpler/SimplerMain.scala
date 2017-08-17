@@ -54,10 +54,10 @@ object MainAnalyzer {
     
     
     var rdd1 = preprocess.preProcess( sc, 
-        "stock" , beginDate , endDate, parser, "MM/dd/yyyy", datasRDD1 )
+        "stock" , beginDate , endDate, parser, "MM/dd/yyyy", datasRDD1, beginDate.yyyy, endDate.yyyy)
     
     var rdd2 = preprocess.preProcess( sc, 
-        "bond" , beginDate , endDate, parser, "yyyy-mm-dd", datasRDD2 )
+        "bond" , beginDate , endDate, parser, "yyyy-mm-dd", datasRDD2, beginDate.yyyy, endDate.yyyy )
         
     var arrayToMerge = new Array[RDD[ (String) ]](2)
     arrayToMerge(0) = rdd1
@@ -77,7 +77,7 @@ object MainAnalyzer {
     {
         var listMW = mapper.getListMW( best )
         for ( mw : MagicWeight <- listMW ) { 
-          var mapped = mapper.mapper( rddT, parser, mw , beginDate.yyyy, endDate.yyyy )
+          var mapped = mapper.mapper( rddT, parser, mw )
           var reduced = reducer.reduce( mapped )
           var reducedArray = reduced.collect()(0)._2
           var vote = reducedArray(2)
@@ -86,7 +86,7 @@ object MainAnalyzer {
             voteMax = vote
             best = mw
           }
-          if(voteMax > 80)
+          if(voteMax > 50)
           {
             continue = false
           }

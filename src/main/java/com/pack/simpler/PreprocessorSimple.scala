@@ -9,7 +9,7 @@ import com.pack.spark.parser.MyDate
 class PreprocessorSimple {
     
   def preProcess( sc: SparkContext, name: String, 
-      beginDate: MyDate, endDate: MyDate, parserSent: Parsers, dateFormat: String, datas: RDD[(String)] ) 
+      beginDate: MyDate, endDate: MyDate, parserSent: Parsers, dateFormat: String, datas: RDD[(String)], beginYear : Int, endYear: Int ) 
   : RDD[(String)] =
   {
    var list: List[String] = List()
@@ -38,8 +38,8 @@ class PreprocessorSimple {
         var drawdownPC = 0.0
         
         //take the data iff: it is a new month or ( it is the beginning year ) or (dateBefore not exists)
-        
-        if( dateFormatted.yyyy != dateBefore.yyyy ) // every january
+        if( (dateFormatted.yyyy != dateBefore.yyyy) && (dateFormatted.yyyy >= beginYear)
+            && (dateFormatted.yyyy <= endYear) ) // every january
         { 
             dateBefore = dateFormatted
             drawdown = maxValue - value

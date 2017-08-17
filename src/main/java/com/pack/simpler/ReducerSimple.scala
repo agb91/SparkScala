@@ -21,19 +21,40 @@ class ReducerSimple {
   : Array[Double] =
   {
     var result = Array[Double](0.0 , 0.0 , 0.0 ) 
-    var totalVariation1 = accumulator(0) + toAdd(0)
-    var worstDD1 = 0.0
+    var totalVariation = accumulator(0) + toAdd(0)
+    var worstDD = 0.0
     if( thisParser.parseDouble( accumulator(1) ) < thisParser.parseDouble( toAdd(1) ) )
     {
-      worstDD1 = thisParser.parseDouble( toAdd(1) ) 
+      worstDD = thisParser.parseDouble( toAdd(1) ) 
     }
     else
     {
-      worstDD1 = thisParser.parseDouble( accumulator(1) )
+      worstDD = thisParser.parseDouble( accumulator(1) )
     }
-    result(0) = totalVariation1
-    result(1) = worstDD1
-    result(2) = totalVariation1 - worstDD1//vote
+    result(0) = totalVariation
+    result(1) = worstDD
+    var variationPoints: Double = totalVariation
+    
+    var DDpoints : Double = 0.0
+    println("worst DD: " + worstDD)
+    worstDD = worstDD*2
+    if(worstDD > 40)
+    {
+      DDpoints = -1000000.0
+    }
+    else
+    {
+      if(worstDD > 25)
+      {
+        DDpoints = - (worstDD * 2)
+      }
+      else
+      {
+        DDpoints = - (worstDD)
+      }
+    }
+    
+    result(2) = variationPoints + DDpoints //vote
     return result
   }
   

@@ -8,9 +8,9 @@ class PreprocessorSimpleTEST  extends GeneralTestS {
      fixture()
      var rdd1 = reader.readCsv( "src/test/resources/simple.csv" , sc )
  
-     assert( rdd1.collect().length == 9 )   
-     assert( rdd1.collect()(0) == "2/2/2007,1,1,1, 1 , 100" )
-     assert( rdd1.collect()(4) == "" )
+     assert( rdd1.collect().length == 10 )   
+     assert( rdd1.collect()(1) == "2/2/2007,1,1,1, 1 , 100" )
+     assert( rdd1.collect()(5) == "" )
   
   }
    
@@ -21,7 +21,7 @@ class PreprocessorSimpleTEST  extends GeneralTestS {
     
           
      var rdd1 = reader.readCsv( "src/test/resources/simple.csv" , sc )
-     var rddProcessed = preprocess.preProcess( sc, "test", beginDate, endDate, parser, "dd/mm/yyyy", rdd1 ) 
+     var rddProcessed = preprocess.preProcess( sc, "test", beginDate, endDate, parser, "dd/mm/yyyy", rdd1 , 2007 , 2100) 
      
      assert( rddProcessed.collect().length == 6 )
      assert( rddProcessed.collect()(0).equalsIgnoreCase( "test-2/2007,100.0,0.0,0.0,none" ) )

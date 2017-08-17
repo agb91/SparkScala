@@ -45,12 +45,12 @@ class MapperSimpleTEST extends GeneralTestS{
     fixture()
     
     var rdd1 = reader.readCsv( "src/test/resources/verySimpleMapper.csv" , sc )
-    var rddProcessed = preprocess.preProcess( sc, "stock", beginDate, endDate, parser, "dd/mm/yyyy", rdd1 ) 
+    var rddProcessed = preprocess.preProcess( sc, "stock", beginDate, endDate, parser, "dd/mm/yyyy", rdd1, 1900 , 2100 ) 
     
     old = new MagicWeight with Serializable
     old.weights(0) = 4999
     old.weights(1) = 5001
-    var rddMapper = mapper.mapper( rddProcessed , parser, old , 1900 , 2100 )
+    var rddMapper = mapper.mapper( rddProcessed , parser, old )
     
     assert( rddMapper.collect().size == 2 )
     assert( rddMapper.collect()(0)._1.equalsIgnoreCase("accepted-4999.0-5001.0") )
