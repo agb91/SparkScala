@@ -66,6 +66,7 @@ class MapperSimple {
         
         var variationW1 = -1.0
         var worstDDW1 = -1.0
+        var worstDDW2 = -1.0
         
         if( name.equalsIgnoreCase("stock") )
         {
@@ -75,12 +76,14 @@ class MapperSimple {
         else
         {
           variationW1 = ( parser.parseDouble( lineSplitted(2) ) * magicWeight.weights(1) ) / magicWeight.getTotal()
-          worstDDW1 = ( parser.parseDouble( lineSplitted(3) ) * magicWeight.weights(1) ) / magicWeight.getTotal()
+          worstDDW2 = ( parser.parseDouble( lineSplitted(3) ) * magicWeight.weights(1) ) / magicWeight.getTotal()
         }
         
-        var tuple = new Array[Double](2)
+        var tuple = new Array[Double](3)
         tuple(0) = variationW1
-        tuple(1) = worstDDW1
+        tuple(1) = worstDDW1 //stock
+        tuple(2) = worstDDW2 //bond
+        
         ( "accepted-" + p0 + "-" + p1 , tuple )
       
       })

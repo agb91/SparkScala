@@ -14,47 +14,59 @@ class ReducerSimple {
   var thisParser : Parsers = new Parsers with Serializable
   
   /*
-   *      tuple(0) = variationW1
-          tuple(1) = worstDDW1
+ 				tuple(0) = variationW1
+        tuple(1) = worstDDW1 //stock
+        tuple(2) = worstDDW2 //bond
       */
    def accumulate (accumulator: Array[Double], toAdd: Array[Double] )
   : Array[Double] =
   {
-    var result = Array[Double](0.0 , 0.0 , 0.0 ) 
+    var result = Array[Double](0.0 , 0.0 , 0.0, 0.0 ) 
     var totalVariation = accumulator(0) + toAdd(0)
-    var worstDD = 0.0
+    var worstDD1 = 0.0 //stock
+    var worstDD2 = 0.0 //bond
     if( thisParser.parseDouble( accumulator(1) ) < thisParser.parseDouble( toAdd(1) ) )
     {
-      worstDD = thisParser.parseDouble( toAdd(1) ) 
+      worstDD1 = thisParser.parseDouble( toAdd(1) ) 
     }
     else
     {
-      worstDD = thisParser.parseDouble( accumulator(1) )
+      worstDD1 = thisParser.parseDouble( accumulator(1) )
+    }
+    
+    if( thisParser.parseDouble( accumulator(2) ) < thisParser.parseDouble( toAdd(2) ) )
+    {
+      worstDD2 = thisParser.parseDouble( toAdd(2) ) 
+    }
+    else
+    {
+      worstDD2 = thisParser.parseDouble( accumulator(2) )
     }
     result(0) = totalVariation
-    result(1) = worstDD
+    result(1) = worstDD1
+    result(2) = worstDD2
     var variationPoints: Double = totalVariation
     
     var DDpoints : Double = 0.0
-    println("worst DD: " + worstDD)
-    worstDD = worstDD*2
-    if(worstDD > 40)
+    //println("worst DD summed: " + (worstDD1 + worstDD2) )
+    var worstDDT = worstDD1 + worstDD2
+    if(worstDDT > 40)
     {
       DDpoints = -1000000.0
     }
     else
     {
-      if(worstDD > 25)
+      if(worstDDT > 25)
       {
-        DDpoints = - (worstDD * 2)
+        DDpoints = - (worstDDT * 2)
       }
       else
       {
-        DDpoints = - (worstDD)
+        DDpoints = - (worstDDT)
       }
     }
     
-    result(2) = variationPoints + DDpoints //vote
+    result(3) = variationPoints + DDpoints //vote
     return result
   }
   

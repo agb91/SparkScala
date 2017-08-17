@@ -54,9 +54,10 @@ class MapperSimpleTEST extends GeneralTestS{
     
     assert( rddMapper.collect().size == 2 )
     assert( rddMapper.collect()(0)._1.equalsIgnoreCase("accepted-4999.0-5001.0") )
-    assert( rddMapper.collect()(0)._2.length == 2 )
+    assert( rddMapper.collect()(0)._2.length == 3 )
     
-    assert( rddMapper.collect()(1)._2(1) == 0.0  ) // no drawdown here..  
+    assert( rddMapper.collect()(1)._2(1) == 0.0  ) // DD computed as 0 
+    assert( rddMapper.collect()(1)._2(2) == -1.0  ) // no comutation because is not a bond.. 
     
     assert( parser.parseDouble( rddMapper.collect()(1)._2(0) ) > 20.0 ) // variation weighted can be about 20-30 more or less..   
     

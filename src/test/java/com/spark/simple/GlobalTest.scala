@@ -9,7 +9,7 @@ class GlobalTest extends GeneralTestS{
   test("all the processs")
   {
       fixture()
-      var goal = 10.09 //the grade to reach
+      var goal = 34 //the grade to reach
             
       var rdd1 = reader.readCsv( "src/test/resources/simpleReducerS.csv" , sc )
       var rddProcessed1 = preprocess.preProcess( sc, "stock", beginDate, endDate, parser, "dd/mm/yyyy", rdd1,
@@ -37,7 +37,7 @@ class GlobalTest extends GeneralTestS{
             var mapped = mapper.mapper( rddT, parser, mw )
             var reduced = reducer.reduce( mapped )
             var reducedArray = reduced.collect()(0)._2
-            var vote = reducedArray(2)
+            var vote = reducedArray(3)
             if( vote > voteMax )
             {
               voteMax = vote
