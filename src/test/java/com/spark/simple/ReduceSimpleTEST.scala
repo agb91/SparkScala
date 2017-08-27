@@ -24,13 +24,15 @@ class ReduceSimpleTEST  extends GeneralTestS {
     var MW1 = new MagicWeight with Serializable
     MW1.weights(0) = 5000
     MW1.weights(1) = 5000
+    MW1.weights(2) = 0.0
     var MW2 = new MagicWeight with Serializable
     MW2.weights(0) = 1000
     MW2.weights(1) = 9000
+    MW2.weights(2) = 0
     var MW3 = new MagicWeight with Serializable
     MW3.weights(0) = 9000
     MW3.weights(1) = 1000
-    
+    MW3.weights(2) = 0
     
     var rddMapper1 = mapper.mapper( rddProcessed , parser, MW1 )
     var rddMapper2 = mapper.mapper( rddProcessed , parser, MW2 )
@@ -44,9 +46,9 @@ class ReduceSimpleTEST  extends GeneralTestS {
     var reduced3 = reducer.reduce( rddMapper3 )
     
     
-    assert( reduced1.collect()(0)._1.equalsIgnoreCase( "accepted-5000.0-5000.0" ) )
-    assert( reduced2.collect()(0)._1.equalsIgnoreCase( "accepted-1000.0-9000.0" ) )
-    assert( reduced3.collect()(0)._1.equalsIgnoreCase( "accepted-9000.0-1000.0" ) )
+    assert( reduced1.collect()(0)._1.equalsIgnoreCase( "accepted-5000.0-5000.0-0.0" ) )
+    assert( reduced2.collect()(0)._1.equalsIgnoreCase( "accepted-1000.0-9000.0-0.0" ) )
+    assert( reduced3.collect()(0)._1.equalsIgnoreCase( "accepted-9000.0-1000.0-0.0" ) )
     
     assert( reduced3.collect()(0)._2(0)  > reduced1.collect()(0)._2(0) )
     assert( reduced3.collect()(0)._2(0)  > reduced2.collect()(0)._2(0) )

@@ -19,9 +19,12 @@ class MapperSimple {
     var a = 0
     for( a <-0 to 2){
     
-      var n1 = r.nextInt( 3000 )
-      var n2 = r.nextInt( 3000 )
-      var toAdd = getMagicWeight( old , n1 , n2 )
+      var n1 = r.nextInt( 2000 )
+      var n2 = r.nextInt( 2000 )
+      var n3 = r.nextInt( 2000 )
+      var n4 = r.nextInt( 2000 )
+      var arrayN = Array(n1, n2, n3, n4) //variations. to add and sfter to substract (n1n2 for stock, n3n4 for bond etc)
+      var toAdd = getMagicWeight( old , arrayN)
       result(a) = toAdd
     }
     
@@ -29,18 +32,26 @@ class MapperSimple {
     
   }
         
-  def getMagicWeight( old : MagicWeight, n1: Int, n2: Int ) : MagicWeight with Serializable =
+  def getMagicWeight( old : MagicWeight, arrayN : Array[ Int ] ) : MagicWeight with Serializable =
   {
     var tw = old.getTotal()
     
     var result = new MagicWeight() with Serializable
 
-    result.weights(0) = ( old.weights(0) + n1 - n2 )
+    result.weights(0) = ( old.weights(0) + arrayN(0) - arrayN(1) )
     if( result.weights(0) < 0 )
     {
       result.weights(0) = 0
     }
-    result.weights(1) = ( tw - result.weights(0) )
+    
+    result.weights(1) = ( old.weights(1) + arrayN(2) - arrayN(3) )
+    if( result.weights(1) < 0 )
+    {
+      result.weights(1) = 0
+    }
+    
+    
+    result.weights(2) = ( tw - result.weights(0) - result.weights(1) )
     
     return result
   }
@@ -50,6 +61,7 @@ class MapperSimple {
   {
     var p0 = magicWeight.weights(0)
     var p1 = magicWeight.weights(1)
+    var p2 = magicWeight.weights(2)
     val result = input.map(line=>
       {
         var lineSplitted = line.split(",")
@@ -60,13 +72,14 @@ class MapperSimple {
             
         magicWeight.weights(0) = p0
         magicWeight.weights(1) = p1
+        magicWeight.weights(2) = p2
         var tw = magicWeight.getTotal()
-        var limit = ceil(tw / 1-1.0).toInt
         
         
         var variationW1 = -1.0
         var worstDDW1 = -1.0
         var worstDDW2 = -1.0
+        var worstDDW3 = -1.0
         
         if( name.equalsIgnoreCase("stock") )
         {
@@ -75,16 +88,25 @@ class MapperSimple {
         }
         else
         {
-          variationW1 = ( parser.parseDouble( lineSplitted(2) ) * magicWeight.weights(1) ) / magicWeight.getTotal()
-          worstDDW2 = ( parser.parseDouble( lineSplitted(3) ) * magicWeight.weights(1) ) / magicWeight.getTotal()
+          if( name.equalsIgnoreCase("bond") )
+          {
+            variationW1 = ( parser.parseDouble( lineSplitted(2) ) * magicWeight.weights(1) ) / magicWeight.getTotal()
+            worstDDW2 = ( parser.parseDouble( lineSplitted(3) ) * magicWeight.weights(1) ) / magicWeight.getTotal()
+          }
+          else
+          {
+            variationW1 = ( parser.parseDouble( lineSplitted(2) ) * magicWeight.weights(2) ) / magicWeight.getTotal()
+            worstDDW3 = ( parser.parseDouble( lineSplitted(3) ) * magicWeight.weights(2) ) / magicWeight.getTotal()
+          }
         }
         
-        var tuple = new Array[Double](3)
+        var tuple = new Array[Double](4)
         tuple(0) = variationW1
         tuple(1) = worstDDW1 //stock
         tuple(2) = worstDDW2 //bond
+        tuple(2) = worstDDW2 //anti-cyclic stabilizer (gold?)
         
-        ( "accepted-" + p0 + "-" + p1 , tuple )
+        ( "accepted-" + p0 + "-" + p1 + "-" + p2 , tuple )
       
       })
       
